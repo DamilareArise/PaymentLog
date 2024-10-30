@@ -34,7 +34,11 @@ const PaymentInvoice = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF8F8]">
-      <header className="/flex /justify-between /items-center h-[50px] md:h-[100px] /p-5 bg-[#583820] text-white /rounded-t-lg"></header>
+      <header className="relative /flex /justify-between /items-center h-[50px] md:h-[100px] /p-5 bg-[#583820] text-white /rounded-t-lg">
+        <div className="absolute left-[-80px] md:left-[-50px] top-[-80px] md:top-[-50px]">
+        <div className="circle-outer"><div className="circle"></div></div>
+        </div>
+      </header>
 
       <section className="pt-[30px] px-[16px] md:px-[50px]">
         <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-3xl mb-[40px]">PAYMENT LOG</h2>

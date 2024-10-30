@@ -1,0 +1,22 @@
+
+
+.circle{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #E57B17;
+    
+    padding: 20px;
+}
+
+.circle-outer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid #E57B17;
+    background-color: transparent;
+
+}
