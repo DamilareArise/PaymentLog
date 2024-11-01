@@ -19,7 +19,7 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
 
-    axios.get('http://127.0.0.1:3000/pay/all-payment')
+    axios.get('https://paymentlog.onrender.com/pay/all-payment')
     .then((response)=>{
       let result = response.data.data
       console.log(result);
@@ -43,7 +43,7 @@ const PaymentInvoice = () => {
     onSubmit: (values) => {
       setloading(true)
       console.log(values);
-      axios.post('http://127.0.0.1:3000/pay/log-payment', values )
+      axios.post('https://paymentlog.onrender.com/pay/log-payment', values )
       .then((response)=>{
         console.log(response.data)
         setloading(false)
