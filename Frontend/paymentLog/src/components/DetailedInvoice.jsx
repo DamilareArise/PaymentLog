@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import arrow from './../assets/arrow.svg'
 
 const DetailedInvoice = () => {
     const [invoices, setInvoices] = useState([
@@ -161,9 +162,9 @@ const DetailedInvoice = () => {
                 <tr className=" ">
                   <td colSpan="4" className="text-right font-[400] p-3 border-t ">
                     <div className="flex justify-end items-center mt-4 gap-[12px]">
-                      <button className="bg-[#583820] text-[14px] md:text-lg text-white px-[30px] py-2 rounded-lg shadow-md">Done for term</button>
+                      <button className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md">Done for term</button>
 
-                      <button className="bg-[#583820] text-[14px] md:text-lg text-white px-[30px] py-2 rounded-lg shadow-md">Print as PDF</button>
+                      <button className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md">Print as PDF</button>
                     </div>
                   </td>
                   <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
@@ -174,7 +175,11 @@ const DetailedInvoice = () => {
               </tfoot>
             </table>
           </section>
-    
+        <div className='flex justify-end items-center gap-[10px] font-bold py-[10px] px-[16px] md:px-[50px]'>
+            <img src={arrow} alt="" />
+            <span className='px-[14px] py-[10px] rounded-[8px] bg-[#845649] text-white text-[20px]'>1</span>
+            <img src={arrow} alt="" className='rotate-[180deg]'/>
+        </div>
     
     
           
