@@ -24,7 +24,7 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
 
-    axios.get('http://127.0.0.1:3000/pay/payment-by-date', {
+    axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
       params: { date: selectedDate }
     })
     .then((response)=>{
