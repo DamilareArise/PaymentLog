@@ -1,36 +1,102 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios'
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
+
+
 
 const PaymentInvoice = () => {
-  const [invoices, setInvoices] = useState([
-    { id: "0801", name: "Mustapha Bello", paymentInfo: "Bank Transfer", amount: 200000, subtotal: 200000 },
-    { id: "0802", name: "Adamu Bello", paymentInfo: "Bank Transfer", amount: 200000, subtotal: 400000 },
-    { id: "0803", name: "Adeniran Abel", paymentInfo: "Cash", amount: 200000, subtotal: 600000 },
-    { id: "0804", name: "Joshua John", paymentInfo: "Cash", amount: 200000, subtotal: 800000 },
-    { id: "0805", name: "Bamidele John", paymentInfo: "Bank Transfer", amount: 200000, subtotal: 1000000 },
-  ]);
-
+  const [allPayment, setallPayment] = useState([])
   const [isModalOpen, setModalOpen] = useState(false);
-  const [newInvoice, setNewInvoice] = useState({ name: "", paymentInfo: "", date: "", amount: "" });
-  const totalAmount = invoices.reduce((acc, curr) => acc + curr.amount, 0);
+  const [loading, setloading] = useState(false)
+  const [totalAmount, settotalAmount] = useState(0)
+  const [date, setdate] = useState('')
+  const navigate = useNavigate()
 
   const handleAddInfo = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const handleSave = () => {
-    const updatedInvoices = [
-      ...invoices,
-      {
-        id: `080${invoices.length + 1}`,
-        name: newInvoice.name,
-        paymentInfo: newInvoice.paymentInfo,
-        amount: parseInt(newInvoice.amount),
-        subtotal: totalAmount + parseInt(newInvoice.amount),
-      },
-    ];
-    setInvoices(updatedInvoices);
-    setModalOpen(false);
-    setNewInvoice({ name: "", paymentInfo: "", date: "", amount: "" });
-  };
+  useEffect(() => {
+
+    axios.get('http://127.0.0.1:3000/pay/all-payment')
+    .then((response)=>{
+      let result = response.data.data
+      console.log(result);
+      setallPayment(result)
+      settotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0))
+      
+      
+    })
+    .catch((err )=> {
+      console.log('Error occured:', err.message)
+    })
+
+  }, [])
+  
+  let formik = useFormik({
+    initialValues: {
+      payer: '',
+      amount: '',
+      paymentInfo: ''
+    },
+    onSubmit: (values) => {
+      setloading(true)
+      console.log(values);
+      axios.post('http://127.0.0.1:3000/pay/log-payment', values )
+      .then((response)=>{
+        console.log(response.data)
+        setloading(false)
+        handleCloseModal()
+        alert(response.data.message)
+        window.location.reload()
+      })
+      .catch((err)=>{
+        console.log(err.message)
+        setloading(false)
+        handleCloseModal()
+        alert(err.message)
+      })
+
+    },
+
+    validationSchema: Yup.object({
+      payer: Yup.string().required("Payer's name required"),
+      amount: Yup.string().required("Amount required"),
+      paymentInfo: Yup.string().required("Payment Info required")
+    })
+
+
+  })
+
+  function formatDateTime(date) {
+    // Date formatting with ordinal suffix
+    const options = { month: 'short', year: 'numeric' };
+    const day = date.getDate();
+    const dayWithSuffix = day + (day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th');
+    const datePart = date.toLocaleDateString('en-GB', options);
+
+    // Time formatting
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert 24-hour to 12-hour format
+
+    return `${dayWithSuffix} ${datePart}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+  }
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setdate(formatDateTime(new Date()));
+    }, 1000);
+
+    return () => clearInterval(intervalId); // Clear interval on component unmount
+  }, []);
+
+  
+
 
   return (
     <div className="min-h-screen bg-[#FAF8F8]">
@@ -65,47 +131,66 @@ const PaymentInvoice = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg w-[400px]">
             <h3 className="text-xl font-semibold mb-4 text-center">ADD INFO</h3>
-            <input
-              type="text"
-              placeholder="Payer's Name"
-              className="w-full p-2 mb-3 border rounded"
-              value={newInvoice.name}
-              onChange={(e) => setNewInvoice({ ...newInvoice, name: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Payment Info"
-              className="w-full p-2 mb-3 border rounded"
-              value={newInvoice.paymentInfo}
-              onChange={(e) => setNewInvoice({ ...newInvoice, paymentInfo: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Date"
-              className="w-full p-2 mb-3 border rounded"
-              value={newInvoice.date}
-              onChange={(e) => setNewInvoice({ ...newInvoice, date: e.target.value })}
-            />
-            <input
-              type="number"
-              placeholder="Amount"
-              className="w-full p-2 mb-3 border rounded"
-              value={newInvoice.amount}
-              onChange={(e) => setNewInvoice({ ...newInvoice, amount: e.target.value })}
-            />
-            <div className="flex justify-between">
-              <button onClick={handleSave} className="bg-[#583820] text-white px-4 py-2 rounded-lg">
-                Save
-              </button>
-              <button onClick={handleCloseModal} className="bg-gray-500 text-white px-4 py-2 rounded-lg">
-                Close
-              </button>
-            </div>
+            <form onSubmit={formik.handleSubmit}>
+
+              <input
+                type="text"
+                placeholder="Payer's Name"
+                className="w-full p-2 mb-3 border rounded"
+                name="payer"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {
+                formik.touched.payer && formik.errors.payer ? (
+                  <div className="text-red-500 mb-2 text-sm">{formik.errors.payer }</div>
+                ): null
+              }
+
+              <input
+                type="text"
+                placeholder="Payment Info"
+                className="w-full p-2 mb-3 border rounded"
+                name="paymentInfo"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+
+              {
+                formik.touched.paymentInfo && formik.errors.paymentInfo ? (
+                  <div className="text-red-500 mb-2 text-sm">{formik.errors.paymentInfo }</div>
+                ): null
+              }
+
+              <input
+                type="number"
+                placeholder="Amount"
+                className="w-full p-2 mb-3 border rounded"
+                name="amount"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {
+                formik.touched.amount && formik.errors.amount ? (
+                  <div className="text-red-500 mb-2 text-sm">{formik.errors.amount }</div>
+                ): null
+              }
+
+
+              <div className="flex justify-between">
+                <button type="submit" className="bg-[#583820] text-white px-4 py-2 rounded-lg" >
+                  {loading ? "Please wait..":"Save"}
+                </button>
+                <button onClick={handleCloseModal} className="bg-gray-500 text-white px-4 py-2 rounded-lg">
+                  Close
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">Date: 10th October, 2024</p>
+      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">{date}</p>
 
       
       <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
@@ -115,20 +200,22 @@ const PaymentInvoice = () => {
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payment Info</th>
+              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Date & Time</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
             </tr>
           </thead>
           <tbody>
-            {invoices.map((invoice, index) => (
-              <tr key={invoice.id} className="/even:bg-gray-100">
+            {allPayment.map((allPayment, index) => (
+              <tr key={allPayment._id} className="/even:bg-gray-100">
                 <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.name}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.paymentInfo}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.amount.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.subtotal.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.id}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.paymentInfo}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleDateString()} | {new Date(allPayment.date).toLocaleTimeString()}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
+                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
               </tr>
             ))}
           </tbody>
@@ -141,7 +228,7 @@ const PaymentInvoice = () => {
               </td>
               <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
                 <span className="mr-[35px] text-[14px] font-[500]">Total </span>
-                <span className="text-[14px] font-[500]">${totalAmount.toLocaleString()}</span>
+                <span className="text-[14px] font-[500]">#{totalAmount.toLocaleString()}</span>
               </td>
             </tr>
           </tfoot>
@@ -149,47 +236,6 @@ const PaymentInvoice = () => {
       </section>
 
 
-
-      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">Date: 15th October, 2024</p>
-      <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
-        <table className="w-full text-left mb-4 border-collapse">
-          <thead>
-            <tr className="/bg-gray-200">
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payment Info</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices.map((invoice, index) => (
-              <tr key={invoice.id} className="/even:bg-gray-100">
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.name}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.paymentInfo}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.amount.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.subtotal.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.id}</td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className=" ">
-              <td colSpan="4" className="text-right font-bold p-3 border-t ">
-                <div className="flex justify-end items-center mt-4">
-                  <button className="bg-[#583820] text-[14px] md:text-xl text-white px-[30px] py-2 rounded-lg shadow-md">Done</button>
-                </div>
-              </td>
-              <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
-                <span className="mr-[35px] text-[14px] font-[500]">Total </span>
-                <span className="text-[14px] font-[500]">${totalAmount.toLocaleString()}</span>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </section>
 
 
       <footer className="flex /justify-between items-center h-[50px] md:h-[100px] /p-5 mt- text-[12px][md:] bg-[#583820] text-white rounded-tl-[100px]">
