@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios'
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 
 
 const PaymentInvoice = () => {
@@ -223,7 +222,7 @@ const PaymentInvoice = () => {
             <tr className=" ">
               <td colSpan="4" className="text-right font-bold p-3 border-t ">
                 <div className="flex justify-end items-center mt-4">
-                  <button className="bg-[#583820] text-[14px] md:text-xl text-white px-[30px] py-2 rounded-lg shadow-md">Done</button>
+                  <button className="bg-[#583820] text-[14px] md:text-xl text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done</Link></button>
                 </div>
               </td>
               <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
