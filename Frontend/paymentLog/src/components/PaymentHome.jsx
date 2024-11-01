@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from 'axios'
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useNavigate, Link } from "react-router-dom";
-
+import { Link } from "react-router-dom";
+import HeaderSection from "./HeaderSection";
+import { useSelector, useDispatch } from "react-redux";
+import { setAllPayment, setdate, setTotalAmount } from "../redux/stateSlice";
 
 const PaymentInvoice = () => {
-  const [allPayment, setallPayment] = useState([])
+  const dispatch = useDispatch()
+  const storeData = useSelector((state)=> state)
+  let allPayment = storeData.stateReducer.allPayment
+  let totalAmount = storeData.stateReducer.totalAmount
+  let date = storeData.stateReducer.date
+
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setloading] = useState(false)
-  const [totalAmount, settotalAmount] = useState(0)
-  const [date, setdate] = useState('')
-  const navigate = useNavigate()
+
+
 
   const handleAddInfo = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -22,8 +28,8 @@ const PaymentInvoice = () => {
     .then((response)=>{
       let result = response.data.data
       console.log(result);
-      setallPayment(result)
-      settotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0))
+      dispatch(setAllPayment(result))
+      dispatch(setTotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0)))
       
       
     })
@@ -88,10 +94,10 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setdate(formatDateTime(new Date()));
+      dispatch(setdate(formatDateTime(new Date())));
     }, 1000);
 
-    return () => clearInterval(intervalId); // Clear interval on component unmount
+    // return () => clearInterval(intervalId); // Clear interval on component unmount
   }, []);
 
   
@@ -99,12 +105,7 @@ const PaymentInvoice = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF8F8]">
-      <header className="relative /flex /justify-between /items-center h-[50px] md:h-[100px] /p-5 bg-[#583820] text-white /rounded-t-lg">
-        <div className="absolute left-[-80px] md:left-[-50px] top-[-80px] md:top-[-50px]">
-        <div className="circle-outer"><div className="circle"></div></div>
-        </div>
-      </header>
-
+      <HeaderSection />
       <section className="pt-[30px] px-[16px] md:px-[50px]">
         <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-3xl mb-[40px]">PAYMENT LOG</h2>
         <div className="flex justify-between">
@@ -205,24 +206,35 @@ const PaymentInvoice = () => {
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
             </tr>
           </thead>
-          <tbody>
-            {allPayment.map((allPayment, index) => (
-              <tr key={allPayment._id} className="/even:bg-gray-100">
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.paymentInfo}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleDateString()} | {new Date(allPayment.date).toLocaleTimeString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
-                <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
+          { allPayment && allPayment.length > 0? (
+            <tbody>
+              {allPayment.map((allPayment, index) => (
+                <tr key={allPayment._id} className="/even:bg-gray-100">
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.paymentInfo}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleDateString()} | {new Date(allPayment.date).toLocaleTimeString()}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
+                </tr>
+              ))}
+            </tbody>
+          ):
+          (
+            <tbody>
+              <tr>
+                <td colSpan="7" className="text-center py-5 text-gray-500">Please wait...</td>
               </tr>
-            ))}
-          </tbody>
+            </tbody>
+          )
+          }
+
           <tfoot>
             <tr className=" ">
               <td colSpan="4" className="text-right font-bold p-3 border-t ">
                 <div className="flex justify-end items-center mt-4">
-                  <button className="bg-[#583820] text-[14px] md:text-xl text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done</Link></button>
+                  <button className="bg-[#583820] text-[14px] md:text-l text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done for the term</Link></button>
                 </div>
               </td>
               <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">

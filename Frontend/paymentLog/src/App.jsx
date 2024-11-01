@@ -8,7 +8,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<PaymentInvoice   />} />
-        <Route path="/detailedInvoice" element={<DetailedInvoice   />} /> 
+        <Route path="/detailedInvoice" element={<DetailedInvoice/>} /> 
         {/* omo that means this will be a dynamic route  */}
       </Routes>
     </>
