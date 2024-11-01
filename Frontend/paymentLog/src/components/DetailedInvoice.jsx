@@ -24,7 +24,6 @@ const DetailedInvoice = () => {
                 <tr className="/bg-gray-200">
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
-                  <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payment Info</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
@@ -35,7 +34,6 @@ const DetailedInvoice = () => {
                   <tr key={invoice._id} className="/even:bg-gray-100">
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.payer}</td>
-                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.paymentInfo}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.amount.toLocaleString()}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.subTotal.toLocaleString()}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.payId}</td>

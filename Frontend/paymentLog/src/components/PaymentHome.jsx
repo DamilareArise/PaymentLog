@@ -16,15 +16,17 @@ const PaymentInvoice = () => {
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setloading] = useState(false)
-
-
-
+  const [selectedDate, setselectedDate] = useState(new Date())  
   const handleAddInfo = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
+  
+
   useEffect(() => {
 
-    axios.get('https://paymentlog.onrender.com/pay/all-payment')
+    axios.get('http://127.0.0.1:3000/pay/payment-by-date', {
+      params: { date: selectedDate }
+    })
     .then((response)=>{
       let result = response.data.data
       console.log(result);
@@ -37,13 +39,12 @@ const PaymentInvoice = () => {
       console.log('Error occured:', err.message)
     })
 
-  }, [])
+  }, [selectedDate])
   
   let formik = useFormik({
     initialValues: {
       payer: '',
       amount: '',
-      paymentInfo: ''
     },
     onSubmit: (values) => {
       setloading(true)
@@ -68,7 +69,6 @@ const PaymentInvoice = () => {
     validationSchema: Yup.object({
       payer: Yup.string().required("Payer's name required"),
       amount: Yup.string().required("Amount required"),
-      paymentInfo: Yup.string().required("Payment Info required")
     })
 
 
@@ -101,7 +101,6 @@ const PaymentInvoice = () => {
   }, []);
 
   
-
 
   return (
     <div className="min-h-screen bg-[#FAF8F8]">
@@ -148,21 +147,6 @@ const PaymentInvoice = () => {
               }
 
               <input
-                type="text"
-                placeholder="Payment Info"
-                className="w-full p-2 mb-3 border rounded"
-                name="paymentInfo"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-
-              {
-                formik.touched.paymentInfo && formik.errors.paymentInfo ? (
-                  <div className="text-red-500 mb-2 text-sm">{formik.errors.paymentInfo }</div>
-                ): null
-              }
-
-              <input
                 type="number"
                 placeholder="Amount"
                 className="w-full p-2 mb-3 border rounded"
@@ -190,17 +174,18 @@ const PaymentInvoice = () => {
         </div>
       )}
 
-      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">{date}</p>
-
+      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">
+        <input type="date" value={selectedDate} onChange={(e)=>setselectedDate(e.target.value)} />
+      </p>
       
+
       <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
         <table className="w-full text-left mb-4 border-collapse">
           <thead>
             <tr className="/bg-gray-200">
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payment Info</th>
-              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Date & Time</th>
+              <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payment Time</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
@@ -212,8 +197,7 @@ const PaymentInvoice = () => {
                 <tr key={allPayment._id} className="/even:bg-gray-100">
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
-                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.paymentInfo}</td>
-                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleDateString()} | {new Date(allPayment.date).toLocaleTimeString()}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleTimeString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
