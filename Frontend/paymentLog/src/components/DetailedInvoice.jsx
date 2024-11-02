@@ -1,21 +1,33 @@
-import React, {useState} from 'react'
+import {useEffect, useState} from 'react'
+// eslint-disable-next-line no-unused-vars
 import arrow from './../assets/arrow.svg'
 import HeaderSection from './HeaderSection';
-import { useSelector, useDispatch } from "react-redux";
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const DetailedInvoice = () => {
-  const storeData = useSelector((state)=> state)
-  let allPayment = storeData.stateReducer.allPayment
-  let totalAmount = storeData.stateReducer.totalAmount
-  let date = storeData.stateReducer.date
+  const [totalAmount, settotalAmount] = useState(0)
+  const [allPayment, setAllPayment] = useState([])
+
+    useEffect(() => {
+  
+      axios.get('https://paymentlog.onrender.com/pay/all-payment')
+      .then((response)=>{
+        let result = response.data.data
+        setAllPayment(result)
+        settotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0))
+
+      }).catch((err)=>{
+        console.log(err.message);
+      })
+    
+    }, [])
+    
+
 
       return (
         <div className="min-h-screen bg-[#FAF8F8]">
           <HeaderSection/>
-
-    
-          <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">{date}</p>
     
           
           <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
@@ -25,6 +37,7 @@ const DetailedInvoice = () => {
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
+                  <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Date & Time</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
                 </tr>
@@ -34,9 +47,10 @@ const DetailedInvoice = () => {
                   <tr key={invoice._id} className="/even:bg-gray-100">
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.payer}</td>
-                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.amount.toLocaleString()}</td>
-                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">${invoice.subTotal.toLocaleString()}</td>
-                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.payId}</td>
+                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{invoice.amount.toLocaleString()}</td>
+                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(invoice.date).toLocaleDateString()} | {new Date(invoice.date).toLocaleTimeString()}</td>
+                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{invoice.subTotal.toLocaleString()}</td>
+                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{invoice.payId}</td>
                   </tr>
                 ))
                 : <tr>
@@ -55,7 +69,7 @@ const DetailedInvoice = () => {
                   </td>
                   <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
                     <span className="mr-[35px] text-[14px] font-[500]">Total </span>
-                    <span className="text-[14px] font-[500]">${totalAmount.toLocaleString()}</span>
+                    <span className="text-[14px] font-[500]">#{totalAmount.toLocaleString()}</span>
                   </td>
                 </tr>
               </tfoot>

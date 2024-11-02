@@ -5,25 +5,28 @@ import * as Yup from "yup";
 import { Link } from "react-router-dom";
 import HeaderSection from "./HeaderSection";
 import { useSelector, useDispatch } from "react-redux";
-import { setAllPayment, setdate, setTotalAmount } from "../redux/stateSlice";
+import { setAllPayment, setTotalAmount } from "../redux/stateSlice";
 
 const PaymentInvoice = () => {
   const dispatch = useDispatch()
   const storeData = useSelector((state)=> state)
   let allPayment = storeData.stateReducer.allPayment
   let totalAmount = storeData.stateReducer.totalAmount
-  let date = storeData.stateReducer.date
-
+  
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setloading] = useState(false)
-  const [selectedDate, setselectedDate] = useState(new Date())  
+  const [loadPayment, setloadPayment] = useState(false)
+  const [selectedDate, setselectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // Format as "YYYY-MM-DD" for the date input
+  });  
   const handleAddInfo = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
   
 
   useEffect(() => {
-
+    setloadPayment(true)
     axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
       params: { date: selectedDate }
     })
@@ -32,14 +35,16 @@ const PaymentInvoice = () => {
       console.log(result);
       dispatch(setAllPayment(result))
       dispatch(setTotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0)))
-      
+      setloadPayment(false)
       
     })
     .catch((err )=> {
       console.log('Error occured:', err.message)
+      alert(err.message)
+      setloadPayment(false)
     })
 
-  }, [selectedDate])
+  }, [selectedDate, dispatch])
   
   let formik = useFormik({
     initialValues: {
@@ -55,7 +60,7 @@ const PaymentInvoice = () => {
         setloading(false)
         handleCloseModal()
         alert(response.data.message)
-        window.location.reload()
+        setselectedDate(selectedDate)
       })
       .catch((err)=>{
         console.log(err.message)
@@ -74,31 +79,6 @@ const PaymentInvoice = () => {
 
   })
 
-  function formatDateTime(date) {
-    // Date formatting with ordinal suffix
-    const options = { month: 'short', year: 'numeric' };
-    const day = date.getDate();
-    const dayWithSuffix = day + (day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th');
-    const datePart = date.toLocaleDateString('en-GB', options);
-
-    // Time formatting
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 || 12; // Convert 24-hour to 12-hour format
-
-    return `${dayWithSuffix} ${datePart}, ${formattedHours}:${minutes}:${seconds} ${ampm}`;
-  }
-
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      dispatch(setdate(formatDateTime(new Date())));
-    }, 1000);
-
-    // return () => clearInterval(intervalId); // Clear interval on component unmount
-  }, []);
 
   
 
@@ -175,6 +155,7 @@ const PaymentInvoice = () => {
       )}
 
       <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">
+        <label htmlFor="">Select Date </label>
         <input type="date" value={selectedDate} onChange={(e)=>setselectedDate(e.target.value)} />
       </p>
       
@@ -191,10 +172,16 @@ const PaymentInvoice = () => {
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
             </tr>
           </thead>
-          { allPayment && allPayment.length > 0? (
-            <tbody>
-              {allPayment.map((allPayment, index) => (
-                <tr key={allPayment._id} className="/even:bg-gray-100">
+          <tbody>
+            {loadPayment ? (
+              <tr>
+                <td colSpan="6" className="text-center text-[14px] md:text-[16px] text-gray-500 py-6">
+                  Loading...
+                </td>
+              </tr>
+            ) : allPayment.length > 0 ? (
+              allPayment.map((allPayment, index) => (
+                <tr key={index} className="bg-white">
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleTimeString()}</td>
@@ -202,17 +189,15 @@ const PaymentInvoice = () => {
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
                 </tr>
-              ))}
-            </tbody>
-          ):
-          (
-            <tbody>
+              ))
+            ) : (
               <tr>
-                <td colSpan="7" className="text-center py-5 text-gray-500">Please wait...</td>
+                <td colSpan="6" className="text-center text-[14px] md:text-[16px] text-gray-500 py-6">
+                  No payment records found for this date.
+                </td>
               </tr>
-            </tbody>
-          )
-          }
+            )}
+          </tbody>
 
           <tfoot>
             <tr className=" ">
