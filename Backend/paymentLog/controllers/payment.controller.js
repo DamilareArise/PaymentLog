@@ -9,8 +9,15 @@ const logPayment = async (req, res) => {
         const latestPayment = await paymentModel.findOne().sort({ date: -1 });
 
         const newPayId = latestPayment ? parseInt(latestPayment.payId) + 1 : 1;
-        const newSubtotal = (latestPayment ? latestPayment.subTotal : 0) + amount;
-
+        
+        let newSubtotal;
+        if (latestPayment && latestPayment.date.toISOString().split('T')[0] === todayDate) {
+            // If the latest entry is from today, add to the subtotal
+            newSubtotal = latestPayment.subTotal + amount;
+        } else {
+            // If no entries today, start a new subtotal with the current amount
+            newSubtotal = amount;
+        }
         // Create a new payment entry
         const newPayment = new paymentModel({
             payId: newPayId,
@@ -52,7 +59,7 @@ const paymentByDate = async (req, res)=>{
         const endOfPrevDay = new Date(startOfPrevDay);
         endOfPrevDay.setHours(23, 59, 59, 999); 
 
-        const prevDayLastRecord = await paymentModel.find({
+        const prevDayLastRecord = await paymentModel.findOne({
             date: {
                 $gte: startOfPrevDay,
                 $lte: endOfPrevDay
@@ -61,6 +68,8 @@ const paymentByDate = async (req, res)=>{
 
         // Calculate the subtotal from the latest record on the previous day, or 0 if none exists
         const subtotal = prevDayLastRecord ? prevDayLastRecord.subTotal : 0;
+        console.log(subtotal);
+        
 
 
         res.send({status:true,message:'payment data fetched successfully', data:records, prevDaySubtotal: subtotal})
