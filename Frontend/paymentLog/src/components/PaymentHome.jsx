@@ -27,7 +27,7 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
     setloadPayment(true)
-    axios.get('http://127.0.0.1:3000/pay/payment-by-date', {
+    axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
       params: { date: selectedDate }
     })
     .then((response)=>{
@@ -61,7 +61,7 @@ const PaymentInvoice = () => {
         setloading(false)
         handleCloseModal()
         alert(response.data.message)
-        setselectedDate(selectedDate)
+        window.location.reload()
       })
       .catch((err)=>{
         console.log(err.message)

@@ -10,6 +10,11 @@ const logPayment = async (req, res) => {
 
         const newPayId = latestPayment ? parseInt(latestPayment.payId) + 1 : 1;
 
+
+        // Get the current date in 'MM/DD/YYYY' format
+        const today = new Date();
+        const todayDate = today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
         let newSubtotal;
         if (latestPayment && latestPayment.date.toISOString().split('T')[0] === todayDate) {
             // If the latest entry is from today, add to the subtotal
