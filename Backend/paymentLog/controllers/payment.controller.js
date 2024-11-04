@@ -52,16 +52,15 @@ const paymentByDate = async (req, res)=>{
         const endOfPrevDay = new Date(startOfPrevDay);
         endOfPrevDay.setHours(23, 59, 59, 999); 
 
-        const prevDayRecords = await paymentModel.find({
+        const prevDayLastRecord = await paymentModel.find({
             date: {
                 $gte: startOfPrevDay,
                 $lte: endOfPrevDay
             }
-        });
+        }).sort({ date: -1 }); // Get the latest entry of the previous day
 
-        
-
-        const subtotal = prevDayRecords.reduce((prevValue, record) => prevValue + record.amount, 0)
+        // Calculate the subtotal from the latest record on the previous day, or 0 if none exists
+        const subtotal = prevDayLastRecord ? prevDayLastRecord.subTotal : 0;
 
 
         res.send({status:true,message:'payment data fetched successfully', data:records, prevDaySubtotal: subtotal})

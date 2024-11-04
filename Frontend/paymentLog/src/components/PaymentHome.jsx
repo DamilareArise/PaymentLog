@@ -15,6 +15,7 @@ const PaymentInvoice = () => {
   
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setloading] = useState(false)
+  const [prevDaySubtotal, setprevDaySubtotal] = useState(0)
   const [loadPayment, setloadPayment] = useState(false)
   const [selectedDate, setselectedDate] = useState(() => {
     const today = new Date();
@@ -31,7 +32,9 @@ const PaymentInvoice = () => {
       params: { date: selectedDate }
     })
     .then((response)=>{
+
       let result = response.data.data
+      setprevDaySubtotal(response.data.prevDaySubtotal)
       console.log(result);
       dispatch(setAllPayment(result))
       dispatch(setTotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0)))
@@ -186,7 +189,7 @@ const PaymentInvoice = () => {
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(allPayment.date).toLocaleTimeString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
-                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{(allPayment.subTotal - prevDaySubtotal).toLocaleString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{allPayment.payId}</td>
                 </tr>
               ))
