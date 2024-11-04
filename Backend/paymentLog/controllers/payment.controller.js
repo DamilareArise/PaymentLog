@@ -31,7 +31,7 @@ const logPayment = async (req, res) => {
 const paymentByDate = async (req, res)=>{
     try{
         const { date } = req.query
-        
+
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
 
@@ -44,7 +44,27 @@ const paymentByDate = async (req, res)=>{
                 $lte: endOfDay
                }
             });
-        res.send({status:true,message:'payment data fetched successfully', data:records})
+
+        // record for the previous day
+        const startOfPrevDay = new Date(startOfDay);
+        startOfPrevDay.setDate(startOfPrevDay.getDate() - 1);
+        
+        const endOfPrevDay = new Date(startOfPrevDay);
+        endOfPrevDay.setHours(23, 59, 59, 999); 
+
+        const prevDayRecords = await paymentModel.find({
+            date: {
+                $gte: startOfPrevDay,
+                $lte: endOfPrevDay
+            }
+        });
+
+        
+
+        const subtotal = prevDayRecords.reduce((prevValue, record) => prevValue + record.amount, 0)
+
+
+        res.send({status:true,message:'payment data fetched successfully', data:records, prevDaySubtotal: subtotal})
     }catch{
         res.status(500).send({status:false,message:'Error fetching payment data'})
     }
