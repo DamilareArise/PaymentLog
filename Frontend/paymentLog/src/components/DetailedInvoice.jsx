@@ -42,11 +42,10 @@ const DetailedInvoice = () => {
               </thead>
               <tbody>
                 {allPayment && allPayment.length > 0 ? allPayment.map((invoice, index) => (
-                  <tr key={invoice._id} className="/even:bg-gray-100">
+                  <tr key={invoice._id} className="even:bg-gray-100">
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{index + 1}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{invoice.payer}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{invoice.amount.toLocaleString()}</td>
-                    <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{new Date(invoice.date).toLocaleDateString()} | {new Date(invoice.date).toLocaleTimeString()}</td>
                     <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">FES-00{invoice.payId}</td>
                   </tr>
                 ))
