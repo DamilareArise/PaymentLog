@@ -37,7 +37,7 @@ const DetailedInvoice = () => {
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
                   <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
-                  <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
+                  <th className="px-[4px] w-[30%] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,7 +56,7 @@ const DetailedInvoice = () => {
               </tbody>
               <tfoot>
                 <tr className=" ">
-                  <td colSpan="4" className="text-right font-[400] p-3 border-t ">
+                  <td colSpan="3" className="text-right font-[400] p-3 border-t ">
                     <div className="flex justify-end items-center mt-4 gap-[12px]">
                       <Link to={'/'} className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md">Back</Link>
 

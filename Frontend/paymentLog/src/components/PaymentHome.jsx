@@ -200,7 +200,7 @@ const PaymentInvoice = () => {
 
           <tfoot>
             <tr className=" ">
-              <td colSpan="4" className="text-right font-bold p-3 border-t ">
+              <td colSpan="3" className="text-right font-bold p-3 border-t ">
                 <div className="flex justify-end items-center mt-4">
                   <button className="bg-[#583820] text-[14px] md:text-l text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done for the term</Link></button>
                 </div>
