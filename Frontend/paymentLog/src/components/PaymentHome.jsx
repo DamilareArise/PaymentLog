@@ -88,19 +88,19 @@ const PaymentInvoice = () => {
       <HeaderSection />
       <section className="pt-[30px] px-[16px] md:px-[50px]">
         <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-3xl mb-[40px]">PAYMENT LOG</h2>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-start">
           <div>
             <h1 className="text-[14px] md:text-[16px] font-[500]">
-              Client: <span className="font-[400] text-[12px] md:text-[14px]"> Company&apos;s Name</span>
+              Company Name: <span className="font-[400] text-[10px] md:text-[14px]">ORE OFE OLUWA <br/>SCHOOLS, ABEBI AREA GBONGAN,<br/> OSUN STATE</span>
             </h1>
             <h2 className="text-[14px] md:text-[16px] font-[500]">
-              Client: <span className="font-[400] text-[12px] md:text-[14px]">Admin&apos;s Name</span>
+              Contact:<span className="font-[400] text-[10px] md:text-[14px]"> 09066099573, 07030965465 </span>
             </h2>
           </div>
 
           <button
             onClick={handleAddInfo}
-            className="bg-[#583820] text-[14px] md:text-xl text-white px-[16px] md:px-[50px] py-[12px] rounded-lg shadow-md"
+            className="bg-[#583820] text-[10px] md:text-xl text-white px-[16px] md:px-[50px] py-[12px] rounded-lg shadow-md"
           >
             Add Info
           </button>
@@ -201,8 +201,8 @@ const PaymentInvoice = () => {
           <tfoot>
             <tr className=" ">
               <td colSpan="3" className="text-right font-bold p-3 border-t ">
-                <div className="flex justify-end items-center mt-4">
-                  <button className="bg-[#583820] text-[14px] md:text-l text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done for the term</Link></button>
+                <div className="flex justify-end items-start md:items-center mt-4">
+                  <button className="bg-[#583820] text-[10px] md:text-lg text-white px-[30px] py-2 rounded-lg shadow-md"><Link to={'/detailedInvoice'}>Done for the term</Link></button>
                 </div>
               </td>
               <td colSpan="2" className="p-3 border-t font-bold border-l-[1px] align-middle">
