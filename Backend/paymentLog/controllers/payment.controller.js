@@ -74,4 +74,14 @@ const allPayment = async (req, res)=>{
 
 }
 
-module.exports = {logPayment, allPayment, paymentByDate}
+const deleteAllLog = async (req, res) => {
+    try {
+        await paymentModel.deleteMany();
+        res.send({ status: true, message: 'All payment logs deleted successfully' });
+    } 
+    catch (err) {
+        res.status(500).send({ status: false, message: 'Error deleting payment logs',error: err.message });
+    }
+}
+
+module.exports = {logPayment, allPayment, paymentByDate, deleteAllLog}
