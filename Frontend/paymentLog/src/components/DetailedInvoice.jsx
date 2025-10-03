@@ -9,10 +9,12 @@ const DetailedInvoice = () => {
   const [totalAmount, settotalAmount] = useState(0);
   const [allPayment, setAllPayment] = useState([]);
   const navigate = useNavigate();
-
+  const [schoolType, setSchoolType] = useState('SEC');
   useEffect(() => {
     axios
-      .get("https://paymentlog.onrender.com/pay/all-payment")
+      .get("http://localhost:3000/pay/all-payment", {
+        params: { schoolType }
+      })
       .then((response) => {
         let result = response.data.data;
         setAllPayment(result);
@@ -32,7 +34,9 @@ const DetailedInvoice = () => {
     let deletelog = confirm("Are you sure?");
     if (deletelog) {
       axios
-        .delete("https://paymentlog.onrender.com/pay/delete-all-log")
+        .delete("http://localhost:3000/pay/delete-all-log", {
+          params: { schoolType }
+        })
         .then((response) => {
           console.log(response.data);
           alert(response.data.message);
@@ -43,6 +47,10 @@ const DetailedInvoice = () => {
           alert('Failed to delete log')
         });
     }
+  };
+
+  const handleSchoolTypeChange = (e) => {
+    setSchoolType(e.target.value);
   };
 
   return (
@@ -81,7 +89,7 @@ const DetailedInvoice = () => {
                     #{invoice.amount.toLocaleString()}
                   </td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">
-                    FES-00{invoice.payId}
+                    {invoice.schoolType}-00{invoice.payId}
                   </td>
                 </tr>
               ))
@@ -97,6 +105,14 @@ const DetailedInvoice = () => {
             <tr className=" ">
               <td colSpan="3" className="text-right font-[400] p-3 border-t ">
                 <div className="flex justify-end items-center mt-4 gap-[12px]">
+                  <select
+                    className="w-full p-2 mb-3 border rounded"
+                    name="schoolType"
+                    onChange={handleSchoolTypeChange}
+                  >
+                    <option value="SEC">Secondary</option>
+                    <option value="PRI">Primary</option>
+                  </select>
                   <Link
                     to={"/"}
                     className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md"

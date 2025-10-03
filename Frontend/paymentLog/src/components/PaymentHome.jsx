@@ -27,8 +27,8 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
     setloadPayment(true)
-    axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
-      params: { date: selectedDate }
+    axios.get('http://localhost:3000/pay/payment-by-date', {
+      params: { date: selectedDate, schoolType: 'SEC' }
     })
     .then((response)=>{
 
@@ -51,11 +51,12 @@ const PaymentInvoice = () => {
     initialValues: {
       payer: '',
       amount: '',
+      schoolType: 'SEC',
     },
     onSubmit: (values) => {
       setloading(true)
       console.log(values);
-      axios.post('https://paymentlog.onrender.com/pay/log-payment', values )
+      axios.post('http://localhost:3000/pay/log-payment', values )
       .then((response)=>{
         console.log(response.data)
         setloading(false)
@@ -75,6 +76,7 @@ const PaymentInvoice = () => {
     validationSchema: Yup.object({
       payer: Yup.string().required("Payer's name required"),
       amount: Yup.string().required("Amount required"),
+      schoolType: Yup.string().required("School type required"),
     })
 
 
@@ -124,6 +126,20 @@ const PaymentInvoice = () => {
               {
                 formik.touched.payer && formik.errors.payer ? (
                   <div className="text-red-500 mb-2 text-sm">{formik.errors.payer }</div>
+                ): null
+              }
+              <select
+                className="w-full p-2 mb-3 border rounded"
+                name="schoolType"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              >
+                <option value="SEC">Secondary</option>
+                <option value="PRI">Primary</option>
+              </select>
+              {
+                formik.touched.schoolType && formik.errors.schoolType ? (
+                  <div className="text-red-500 mb-2 text-sm">{formik.errors.schoolType }</div>
                 ): null
               }
 
@@ -186,7 +202,7 @@ const PaymentInvoice = () => {
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.payer}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.amount.toLocaleString()}</td>
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">#{allPayment.subTotal.toLocaleString()}</td>
-                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">OFE-00{allPayment.payId}</td>
+                  <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">{allPayment.schoolType}-00{allPayment.payId}</td>
                 </tr>
               ))
             ) : (
