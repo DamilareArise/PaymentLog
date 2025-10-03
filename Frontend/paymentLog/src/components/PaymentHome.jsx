@@ -28,7 +28,7 @@ const PaymentInvoice = () => {
 
   useEffect(() => {
     setloadPayment(true)
-    axios.get('http://localhost:3000/pay/payment-by-date', {
+    axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
       params: { date: selectedDate, schoolType }
     })
     .then((response)=>{
@@ -58,7 +58,7 @@ const PaymentInvoice = () => {
     onSubmit: (values) => {
       setloading(true)
       console.log(values);
-      axios.post('http://localhost:3000/pay/log-payment', values )
+      axios.post('https://paymentlog.onrender.com/pay/log-payment', values )
       .then((response)=>{
         console.log(response.data)
         setloading(false)

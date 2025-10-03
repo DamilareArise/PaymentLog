@@ -12,7 +12,7 @@ const DetailedInvoice = () => {
   const [schoolType, setSchoolType] = useState('SEC');
   useEffect(() => {
     axios
-      .get("http://localhost:3000/pay/all-payment", {
+      .get("https://paymentlog.onrender.com/pay/all-payment", {
         params: { schoolType }
       })
       .then((response) => {
@@ -34,7 +34,7 @@ const DetailedInvoice = () => {
     let deletelog = confirm("Are you sure?");
     if (deletelog) {
       axios
-        .delete("http://localhost:3000/pay/delete-all-log", {
+        .delete("https://paymentlog.onrender.com/pay/delete-all-log", {
           params: { schoolType }
         })
         .then((response) => {
