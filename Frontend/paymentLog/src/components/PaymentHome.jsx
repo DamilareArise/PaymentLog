@@ -16,6 +16,7 @@ const PaymentInvoice = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [loading, setloading] = useState(false)
   const [loadPayment, setloadPayment] = useState(false)
+  const [schoolType, setSchoolType] = useState('SEC')
   const [selectedDate, setselectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split('T')[0]; // Format as "YYYY-MM-DD" for the date input
@@ -28,7 +29,7 @@ const PaymentInvoice = () => {
   useEffect(() => {
     setloadPayment(true)
     axios.get('http://localhost:3000/pay/payment-by-date', {
-      params: { date: selectedDate, schoolType: 'SEC' }
+      params: { date: selectedDate, schoolType }
     })
     .then((response)=>{
 
@@ -45,7 +46,8 @@ const PaymentInvoice = () => {
       setloadPayment(false)
     })
 
-  }, [selectedDate, dispatch])
+  }, [selectedDate, schoolType, dispatch])
+
   
   let formik = useFormik({
     initialValues: {
@@ -86,7 +88,7 @@ const PaymentInvoice = () => {
   
 
   return (
-    <div className="min-h-screen bg-[#FAF8F8]">
+    <div className="h-screen bg-[#FAF8F8] flex flex-col">
       <HeaderSection />
       <section className="pt-[30px] px-[16px] md:px-[50px]">
         <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-3xl mb-[40px]">PAYMENT LOG</h2>
@@ -171,13 +173,33 @@ const PaymentInvoice = () => {
         </div>
       )}
 
-      <p className="text-right text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">
-        <label htmlFor="">Select Date </label>
+      <div className="flex justify-end items-center gap-4 text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">
+        <label htmlFor="">Select Date</label>
         <input type="date" value={selectedDate} onChange={(e)=>setselectedDate(e.target.value)} />
-      </p>
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] md:text-base">School Type</span>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={schoolType === 'PRI'}
+              onChange={(e) => {
+                const nextType = e.target.checked ? 'PRI' : 'SEC'
+                setSchoolType(nextType)
+                formik.setFieldValue('schoolType', nextType)
+              }}
+            />
+            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </div>
+            <span className="ml-2 text-[12px] md:text-base">{schoolType}</span>
+          </label>
+        </div>
+      </div>
       
 
-      <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
+      <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px] flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
         <table className="w-full text-left mb-4 border-collapse">
           <thead>
             <tr className="/bg-gray-200">
@@ -228,6 +250,7 @@ const PaymentInvoice = () => {
             </tr>
           </tfoot>
         </table>
+        </div>
       </section>
 
 

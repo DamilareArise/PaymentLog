@@ -28,7 +28,7 @@ const DetailedInvoice = () => {
       .catch((err) => {
         console.log(err.message);
       });
-  }, []);
+  }, [schoolType]);
 
   const handleDelete = () => {
     let deletelog = confirm("Are you sure?");
@@ -49,16 +49,30 @@ const DetailedInvoice = () => {
     }
   };
 
-  const handleSchoolTypeChange = (e) => {
-    setSchoolType(e.target.value);
-  };
+  // Toggle handled inline in JSX
 
   return (
-    <div className="min-h-screen bg-[#FAF8F8]">
+    <div className="h-screen bg-[#FAF8F8] flex flex-col">
       <HeaderSection />
 
-      <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px]">
-        <table className="w-full text-left mb-4 border-collapse">
+      <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px] flex-1 flex flex-col overflow-hidden">
+        <div className="flex justify-end items-center gap-2 py-3">
+          <span className="text-[12px] md:text-base">School Type</span>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={schoolType === 'PRI'}
+              onChange={(e) => setSchoolType(e.target.checked ? 'PRI' : 'SEC')}
+            />
+            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </div>
+            <span className="ml-2 text-[12px] md:text-base">{schoolType}</span>
+          </label>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <table className="w-full text-left mb-4 border-collapse">
           <thead>
             <tr className="/bg-gray-200">
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">
@@ -105,14 +119,6 @@ const DetailedInvoice = () => {
             <tr className=" ">
               <td colSpan="3" className="text-right font-[400] p-3 border-t ">
                 <div className="flex justify-end items-center mt-4 gap-[12px]">
-                  <select
-                    className="w-full p-2 mb-3 border rounded"
-                    name="schoolType"
-                    onChange={handleSchoolTypeChange}
-                  >
-                    <option value="SEC">Secondary</option>
-                    <option value="PRI">Primary</option>
-                  </select>
                   <Link
                     to={"/"}
                     className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md"
@@ -144,7 +150,8 @@ const DetailedInvoice = () => {
               </td>
             </tr>
           </tfoot>
-        </table>
+          </table>
+        </div>
       </section>
       {/* <div className='flex justify-end items-center gap-[10px] font-bold py-[10px] px-[16px] md:px-[50px]'>
             <img src={arrow} alt="" />

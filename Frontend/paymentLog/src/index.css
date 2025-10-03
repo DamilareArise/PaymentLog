@@ -1,5 +1,16 @@
 
 
+.root,
+html,
+body,
+#root {
+    height: 100%;
+}
+
+.app-full-height {
+    min-height: 100vh;
+}
+
 .circle{
     width: 150px;
     height: 150px;
