@@ -10,10 +10,14 @@ const DetailedInvoice = () => {
   const [allPayment, setAllPayment] = useState([]);
   const navigate = useNavigate();
   const [schoolType, setSchoolType] = useState('SEC');
+  const [paymentType, setPaymentType] = useState('Income');
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
+    setLoading(true);
     axios
       .get("https://paymentlog.onrender.com/pay/all-payment", {
-        params: { schoolType }
+        params: { schoolType, type: paymentType }
       })
       .then((response) => {
         let result = response.data.data;
@@ -27,15 +31,18 @@ const DetailedInvoice = () => {
       })
       .catch((err) => {
         console.log(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, [schoolType]);
+  }, [schoolType, paymentType]);
 
   const handleDelete = () => {
     let deletelog = confirm("Are you sure?");
     if (deletelog) {
       axios
         .delete("https://paymentlog.onrender.com/pay/delete-all-log", {
-          params: { schoolType }
+          params: { schoolType, type: paymentType }
         })
         .then((response) => {
           console.log(response.data);
@@ -57,7 +64,7 @@ const DetailedInvoice = () => {
 
       <section className="bg-white px-[2] md:px-6 rounded-lg shadow-md mt-4 mx-[16px] md:mx-[50px] flex-1 flex flex-col overflow-hidden">
         <div className="flex justify-end items-center gap-2 py-3">
-          <span className="text-[12px] md:text-base">School Type</span>
+          <span className="text-[12px] md:text-base font-bold">School Type</span>
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -70,7 +77,21 @@ const DetailedInvoice = () => {
             </div>
             <span className="ml-2 text-[12px] md:text-base">{schoolType}</span>
           </label>
+          <span className="text-[12px] md:text-base ml-4 font-bold">Payment Type</span>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={paymentType === 'Income'}
+              onChange={(e) => setPaymentType(e.target.checked ? 'Income' : 'Expense')}
+            />
+            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </div>
+            <span className="ml-2 text-[12px] md:text-base">{paymentType}</span>
+          </label>
         </div>
+      
         <div className="flex-1 overflow-y-auto">
           <table className="w-full text-left mb-4 border-collapse">
           <thead>
@@ -79,7 +100,7 @@ const DetailedInvoice = () => {
                 S/N
               </th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">
-                Payer&apos;s Name
+                {paymentType === 'Income' ? "Payer's Name" : "Title"}
               </th>
               <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">
                 Amount
@@ -90,7 +111,13 @@ const DetailedInvoice = () => {
             </tr>
           </thead>
           <tbody>
-            {allPayment && allPayment.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="7" className="text-center py-5 text-gray-500">
+                  Please wait...
+                </td>
+              </tr>
+            ) : allPayment && allPayment.length > 0 ? (
               allPayment.map((invoice, index) => (
                 <tr key={invoice._id} className="even:bg-gray-100">
                   <td className="px-[4px] md:px-3 py-5 border-b text-[10px] md:text-[14px] font-[400]">
@@ -110,7 +137,7 @@ const DetailedInvoice = () => {
             ) : (
               <tr>
                 <td colSpan="7" className="text-center py-5 text-gray-500">
-                  Please wait...
+                  No payment log found
                 </td>
               </tr>
             )}
