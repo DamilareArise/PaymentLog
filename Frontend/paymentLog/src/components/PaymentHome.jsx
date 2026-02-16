@@ -100,30 +100,36 @@ const PaymentInvoice = () => {
   return (
     <div className="h-screen bg-[#FAF8F8] flex flex-col">
       <HeaderSection />
-      <section className="pt-[30px] px-[16px] md:px-[50px]">
-        <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-2xl mb-[40px]">PAYMENT LOG</h2>
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-[14px] md:text-[16px] font-[500]">
-              Company Name: <span className="font-[400] text-[10px] md:text-[14px]">ORE OFE OLUWA <br />SCHOOLS, ABEBI AREA GBONGAN,<br /> OSUN STATE</span>
+      <section className="pt-6 md:pt-8 px-[16px] md:px-[50px]">
+        <h2 className="text-center font-semibold text-lg md:text-2xl mb-5 md:mb-8 tracking-wide text-[#583820]">PAYMENT LOG</h2>
+
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          {/* Company Info */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 md:px-5 md:py-4">
+            <h1 className="text-[13px] md:text-[15px] font-semibold text-[#583820] leading-snug">
+              ORE OFE OLUWA SCHOOLS
             </h1>
-            <h2 className="text-[14px] md:text-[16px] font-[500]">
-              Contact:<span className="font-[400] text-[10px] md:text-[14px]"> 09066099573, 07030965465 </span>
-            </h2>
+            <p className="text-[11px] md:text-[13px] text-gray-500 mt-0.5">
+              Abebi Area Gbongan, Osun State
+            </p>
+            <p className="text-[11px] md:text-[13px] text-gray-500 mt-0.5">
+              09066099573 &middot; 07030965465
+            </p>
           </div>
 
-          <div className="flex gap-2">
+          {/* Action Buttons */}
+          <div className="flex gap-2 md:gap-3">
             <button
               onClick={handleAddIncome}
-              className="bg-[#583820] text-[10px] md:text-xl text-white px-[16px] md:px-[30px] py-[12px] rounded-lg shadow-md"
+              className="flex-1 md:flex-none bg-[#583820] hover:bg-[#6b4528] text-[11px] md:text-base text-white px-4 md:px-6 py-2.5 md:py-3 rounded-xl shadow-sm font-medium transition-colors"
             >
-              Add Income
+              + Add Income
             </button>
             <button
               onClick={handleAddExpense}
-              className="bg-[#583820] text-[10px] md:text-xl text-white px-[16px] md:px-[30px] py-[12px] rounded-lg shadow-md"
+              className="flex-1 md:flex-none border-2 border-[#583820] text-[#583820] hover:bg-[#583820] hover:text-white text-[11px] md:text-base px-4 md:px-6 py-2.5 md:py-3 rounded-xl shadow-sm font-medium transition-colors"
             >
-              Add Expense
+              + Add Expense
             </button>
           </div>
         </div>
@@ -191,48 +197,86 @@ const PaymentInvoice = () => {
         </div>
       )}
 
-      <div className="flex justify-end items-center gap-4 text-[12px] md:text-base  mt-4 px-[16px] md:px-[50px]">
-        <label htmlFor="" className="font-bold">Select Date</label>
-        <input type="date" value={selectedDate} onChange={(e) => setselectedDate(e.target.value)} />
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] md:text-base font-bold">School Type</span>
-          <label className="inline-flex items-center cursor-pointer">
+      <div className="mt-4 mx-[16px] md:mx-[50px] bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4">
+        <div className="flex flex-wrap items-center gap-3 md:gap-6">
+          {/* Date Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] md:text-sm text-gray-500 font-medium uppercase tracking-wide">Date</span>
             <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={schoolType === 'PRI'}
-              onChange={(e) => {
-                const nextType = e.target.checked ? 'PRI' : 'SEC'
-                setSchoolType(nextType)
-                formik.setFieldValue('schoolType', nextType)
-              }}
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setselectedDate(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-[12px] md:text-sm focus:outline-none focus:ring-2 focus:ring-[#583820]/30 focus:border-[#583820] transition-all"
             />
-            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
-              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+          </div>
+
+          <div className="w-px h-8 bg-gray-200 hidden md:block" />
+
+          {/* School Type Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] md:text-sm text-gray-500 font-medium uppercase tracking-wide">School</span>
+            <div className="flex bg-gray-100 rounded-lg p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setSchoolType('SEC')
+                  formik.setFieldValue('schoolType', 'SEC')
+                }}
+                className={`px-3 md:px-4 py-1.5 rounded-md text-[11px] md:text-sm font-medium transition-all ${
+                  schoolType === 'SEC'
+                    ? 'bg-[#583820] text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Secondary
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSchoolType('PRI')
+                  formik.setFieldValue('schoolType', 'PRI')
+                }}
+                className={`px-3 md:px-4 py-1.5 rounded-md text-[11px] md:text-sm font-medium transition-all ${
+                  schoolType === 'PRI'
+                    ? 'bg-[#583820] text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Primary
+              </button>
             </div>
-            <span className="ml-2 text-[12px] md:text-base">{schoolType}</span>
-          </label>
-        </div>
-        
-        {/* switch from income to expense log */}
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] md:text-base font-bold">Payment Type</span>
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="sr-only peer"
-              checked={paymentType === 'Expense'}
-              onChange={(e) => {
-                const nextType = e.target.checked ? 'Expense' : 'Income'
-                setPaymentType(nextType)
-                formik.setFieldValue('paymentType', nextType)
-              }}
-            />
-            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
-              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+          </div>
+
+          <div className="w-px h-8 bg-gray-200 hidden md:block" />
+
+          {/* Payment Type Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] md:text-sm text-gray-500 font-medium uppercase tracking-wide">Type</span>
+            <div className="flex bg-gray-100 rounded-lg p-0.5">
+              <button
+                type="button"
+                onClick={() => setPaymentType('Income')}
+                className={`px-3 md:px-4 py-1.5 rounded-md text-[11px] md:text-sm font-medium transition-all ${
+                  paymentType === 'Income'
+                    ? 'bg-green-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Income
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentType('Expense')}
+                className={`px-3 md:px-4 py-1.5 rounded-md text-[11px] md:text-sm font-medium transition-all ${
+                  paymentType === 'Expense'
+                    ? 'bg-red-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Expense
+              </button>
             </div>
-            <span className="ml-2 text-[12px] md:text-base">{paymentType}</span>
-          </label>
+          </div>
         </div>
       </div>
 
