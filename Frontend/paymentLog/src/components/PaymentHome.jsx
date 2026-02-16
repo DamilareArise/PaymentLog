@@ -191,11 +191,11 @@ const PaymentInvoice = () => {
         </div>
       )}
 
-      <div className="flex justify-end items-center gap-4 text-gray-800 text-[14px] md:text-xl mt-4 px-[16px] md:px-[50px]">
-        <label htmlFor="">Select Date</label>
+      <div className="flex justify-end items-center gap-4 text-[12px] md:text-base  mt-4 px-[16px] md:px-[50px]">
+        <label htmlFor="" className="font-bold">Select Date</label>
         <input type="date" value={selectedDate} onChange={(e) => setselectedDate(e.target.value)} />
         <div className="flex items-center gap-2">
-          <span className="text-[12px] md:text-base">School Type</span>
+          <span className="text-[12px] md:text-base font-bold">School Type</span>
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -216,7 +216,7 @@ const PaymentInvoice = () => {
         
         {/* switch from income to expense log */}
         <div className="flex items-center gap-2">
-          <span className="text-[12px] md:text-base">Payment Type</span>
+          <span className="text-[12px] md:text-base font-bold">Payment Type</span>
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
