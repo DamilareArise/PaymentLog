@@ -90,7 +90,7 @@ const logExpense = async (req, res) => {
 
 const paymentByDate = async (req, res)=>{
     try{
-        const { date, schoolType } = req.query
+        const { date, schoolType, type } = req.query
 
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
@@ -100,6 +100,7 @@ const paymentByDate = async (req, res)=>{
         
         const records = await paymentModel.find({
             schoolType,
+            type,
             date: {
                 $gte: startOfDay,
                 $lte: endOfDay
@@ -114,9 +115,9 @@ const paymentByDate = async (req, res)=>{
 }
 
 const allPayment = async (req, res)=>{
-    const { schoolType } = req.query
+    const { schoolType, type } = req.query
     try{
-        const data = await paymentModel.find({schoolType});
+        const data = await paymentModel.find({schoolType, type});
         res.send({status:true,message:'All payment data',data})
     }catch{
         res.status(500).send({status:false,message:'Error fetching payment data'})
@@ -125,9 +126,9 @@ const allPayment = async (req, res)=>{
 }
 
 const deleteAllLog = async (req, res) => {
-    const { schoolType } = req.query
+    const { schoolType, type } = req.query
     try {
-        await paymentModel.deleteMany({schoolType});
+        await paymentModel.deleteMany({schoolType, type});
         res.send({ status: true, message: 'All payment logs deleted successfully' });
     } 
     catch (err) {

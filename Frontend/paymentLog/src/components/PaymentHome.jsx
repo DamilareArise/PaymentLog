@@ -17,12 +17,12 @@ const PaymentInvoice = () => {
   const [loading, setloading] = useState(false)
   const [loadPayment, setloadPayment] = useState(false)
   const [schoolType, setSchoolType] = useState('SEC')
+  const [paymentType, setPaymentType] = useState('Income');
   const [selectedDate, setselectedDate] = useState(() => {
     const today = new Date();
     return today.toISOString().split('T')[0]; // Format as "YYYY-MM-DD" for the date input
   });
 
-  const [paymentType, setPaymentType] = useState('Income');
 
   const handleAddIncome = () => {
     setPaymentType('Income');
@@ -41,17 +41,14 @@ const PaymentInvoice = () => {
   useEffect(() => {
     setloadPayment(true)
     axios.get('https://paymentlog.onrender.com/pay/payment-by-date', {
-      params: { date: selectedDate, schoolType }
+      params: { date: selectedDate, schoolType, type: paymentType }
     })
       .then((response) => {
-
         let result = response.data.data
         console.log(result);
         dispatch(setAllPayment(result))
-      dispatch(setTotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0)))
+        dispatch(setTotalAmount(result.reduce((accumulator, current) => accumulator + current.amount, 0)))
         setloadPayment(false)
-
-
       })
       .catch((err) => {
         console.log('Error occured:', err.message)
@@ -59,7 +56,7 @@ const PaymentInvoice = () => {
         setloadPayment(false)
       })
 
-  }, [selectedDate, schoolType, dispatch])
+  }, [selectedDate, schoolType, dispatch, paymentType])
 
 
   let formik = useFormik({
@@ -104,7 +101,7 @@ const PaymentInvoice = () => {
     <div className="h-screen bg-[#FAF8F8] flex flex-col">
       <HeaderSection />
       <section className="pt-[30px] px-[16px] md:px-[50px]">
-        <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-3xl mb-[40px]">PAYMENT LOG</h2>
+        <h2 className="text-center md:text-end font-semibold md:mr-[80px] text-xl md:text-2xl mb-[40px]">PAYMENT LOG</h2>
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-[14px] md:text-[16px] font-[500]">
@@ -124,7 +121,7 @@ const PaymentInvoice = () => {
             </button>
             <button
               onClick={handleAddExpense}
-              className="bg-red-600 text-[10px] md:text-xl text-white px-[16px] md:px-[30px] py-[12px] rounded-lg shadow-md"
+              className="bg-[#583820] text-[10px] md:text-xl text-white px-[16px] md:px-[30px] py-[12px] rounded-lg shadow-md"
             >
               Add Expense
             </button>
@@ -140,7 +137,7 @@ const PaymentInvoice = () => {
 
               <input
                 type="text"
-                placeholder="Payer's Name"
+                placeholder= {paymentType === 'Income' ? "Payer's Name" : "Title"} 
                 className="w-full p-2 mb-3 border rounded"
                 name="payer"
                 onChange={formik.handleChange}
@@ -216,6 +213,27 @@ const PaymentInvoice = () => {
             <span className="ml-2 text-[12px] md:text-base">{schoolType}</span>
           </label>
         </div>
+        
+        {/* switch from income to expense log */}
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] md:text-base">Payment Type</span>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={paymentType === 'Expense'}
+              onChange={(e) => {
+                const nextType = e.target.checked ? 'Expense' : 'Income'
+                setPaymentType(nextType)
+                formik.setFieldValue('paymentType', nextType)
+              }}
+            />
+            <div className="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-[#583820] transition-colors">
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </div>
+            <span className="ml-2 text-[12px] md:text-base">{paymentType}</span>
+          </label>
+        </div>
       </div>
 
 
@@ -225,7 +243,7 @@ const PaymentInvoice = () => {
             <thead>
               <tr className="/bg-gray-200">
                 <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">S/N</th>
-                <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Payer&apos;s Name</th>
+                <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">{paymentType === 'Income' ? "Payer's Name" : "Title"}</th>
                 <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Amount</th>
                 <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Sub-total</th>
                 <th className="px-[4px] md:px-3 border-t py-5 border-b text-[10px] md:text-[16px] font-[500]">Pay ID</th>
