@@ -1,12 +1,16 @@
 const express = require('express')
 const paymentModel = require('../models/payment.models')
 
-const logPayment = async (req, res) => {
+const logIncome = async (req, res) => {
     try {
         const { payer, amount, schoolType } = req.body;
 
         // Find the most recent payment entry and calculate new payId and subtotal
-        const latestPayment = await paymentModel.findOne({schoolType}).sort({ date: -1 });
+        // Filter by type 'Income' or where type is not set (for legacy data)
+        const latestPayment = await paymentModel.findOne({
+            schoolType,
+            $or: [{ type: 'Income' }, { type: { $exists: false } }]
+        }).sort({ date: -1 });
 
         const newPayId = latestPayment ? parseInt(latestPayment.payId) + 1 : 1;
 
@@ -29,7 +33,8 @@ const logPayment = async (req, res) => {
             payer,
             amount,
             subTotal: newSubtotal,
-            schoolType
+            schoolType,
+            type: 'Income'
         });
 
         // Save the new payment entry to the database
@@ -38,6 +43,48 @@ const logPayment = async (req, res) => {
         res.send({ status: true, message: 'Payment logged successfully', data });
     } catch (err) {
         res.status(500).send({ status: false, message: 'Error logging payment', error: err.message });
+    }
+};
+
+const logExpense = async (req, res) => {
+    try {
+        const { payer, amount, schoolType } = req.body;
+
+        // Find the most recent expense entry
+        const latestExpense = await paymentModel.findOne({
+            schoolType,
+            type: 'Expense'
+        }).sort({ date: -1 });
+
+        const newPayId = latestExpense ? parseInt(latestExpense.payId) + 1 : 1;
+
+        // Get the current date in 'MM/DD/YYYY' format
+        const today = new Date();
+        const todayDate = today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+
+        let newSubtotal;
+        if (latestExpense && latestExpense.date.toISOString().split('T')[0] === todayDate) {
+            // If the latest entry is from today, add to the subtotal
+            newSubtotal = latestExpense.subTotal + amount;
+        } else {
+            // If no entries today, start a new subtotal with the current amount
+            newSubtotal = amount;   
+        }
+
+        // Create a new expense entry
+        const newExpense = new paymentModel({
+            payId: newPayId,
+            payer,
+            amount,
+            subTotal: newSubtotal, // Running total for expenses
+            schoolType,
+            type: 'Expense'
+        });
+
+        const data = await newExpense.save();
+        res.send({ status: true, message: 'Expense logged successfully', data });
+    } catch (err) {
+        res.status(500).send({ status: false, message: 'Error logging expense', error: err.message });
     }
 };
 
@@ -88,4 +135,4 @@ const deleteAllLog = async (req, res) => {
     }
 }
 
-module.exports = {logPayment, allPayment, paymentByDate, deleteAllLog}
+module.exports = {logIncome, logExpense, allPayment, paymentByDate, deleteAllLog}
