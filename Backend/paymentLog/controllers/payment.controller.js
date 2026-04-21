@@ -1,5 +1,6 @@
 const express = require('express')
 const paymentModel = require('../models/payment.models')
+const PDFDocument = require('pdfkit')
 
 const logIncome = async (req, res) => {
     try {
@@ -136,4 +137,75 @@ const deleteAllLog = async (req, res) => {
     }
 }
 
-module.exports = {logIncome, logExpense, allPayment, paymentByDate, deleteAllLog}
+const exportPDF = async (req, res) => {
+    const { schoolType, type } = req.query;
+    try {
+        const payments = await paymentModel.find({ schoolType, type }).sort({ date: 1 });
+        const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
+
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="${schoolType}-${type}-payments.pdf"`
+        );
+        doc.pipe(res);
+
+        // Title
+        doc.fontSize(18).font('Helvetica-Bold')
+            .text(`${schoolType} School — ${type} Log`, { align: 'center' });
+        doc.moveDown(0.5);
+        doc.fontSize(10).font('Helvetica')
+            .text(`Generated: ${new Date().toLocaleDateString('en-GB', { dateStyle: 'full' })}`, { align: 'center' });
+        doc.moveDown(1);
+
+        // Table header
+        const tableTop = doc.y;
+        const colX = { sn: 40, payer: 80, amount: 300, payId: 400, date: 460 };
+
+        doc.fontSize(10).font('Helvetica-Bold');
+        doc.text('S/N', colX.sn, tableTop);
+        doc.text(type === 'Income' ? "Payer's Name" : 'Title', colX.payer, tableTop);
+        doc.text('Amount (₦)', colX.amount, tableTop);
+        doc.text('Pay ID', colX.payId, tableTop);
+        doc.text('Date', colX.date, tableTop);
+
+        doc.moveTo(40, tableTop + 15).lineTo(560, tableTop + 15).stroke();
+
+        // Table rows
+        doc.font('Helvetica').fontSize(9);
+        let y = tableTop + 22;
+
+        payments.forEach((p, i) => {
+            if (y > 750) {
+                doc.addPage();
+                y = 40;
+            }
+            const rowColor = i % 2 === 0 ? '#FFFFFF' : '#F5F5F5';
+            doc.rect(40, y - 4, 520, 18).fill(rowColor).stroke('#E0E0E0');
+            doc.fillColor('#000000');
+
+            doc.text(String(i + 1), colX.sn, y);
+            doc.text(p.payer, colX.payer, y, { width: 210, ellipsis: true });
+            doc.text(`#${p.amount.toLocaleString()}`, colX.amount, y);
+            doc.text(`${p.schoolType}-00${p.payId}`, colX.payId, y);
+            doc.text(new Date(p.date).toLocaleDateString('en-GB'), colX.date, y);
+
+            y += 18;
+        });
+
+        // Total row
+        doc.moveTo(40, y + 4).lineTo(560, y + 4).stroke();
+        y += 10;
+        doc.font('Helvetica-Bold').fontSize(10);
+        doc.text('TOTAL', colX.payer, y);
+        doc.text(`#${totalAmount.toLocaleString()}`, colX.amount, y);
+
+        doc.end();
+    } catch (err) {
+        res.status(500).send({ status: false, message: 'Error generating PDF', error: err.message });
+    }
+};
+
+module.exports = { logIncome, logExpense, allPayment, paymentByDate, deleteAllLog, exportPDF }
