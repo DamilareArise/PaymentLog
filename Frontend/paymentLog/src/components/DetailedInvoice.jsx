@@ -153,9 +153,13 @@ const DetailedInvoice = () => {
                     Back
                   </Link>
 
-                  <button className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md">
+                  <a
+                    href={`https://paymentlog.onrender.com/pay/export-pdf?schoolType=${schoolType}&type=${paymentType}`}
+                    download
+                    className="bg-[#583820] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md"
+                  >
                     Print as PDF
-                  </button>
+                  </a>
 
                   <button
                     className="bg-[red] text-[9px] md:text-lg text-white px-[10px] py-2 rounded-lg shadow-md"

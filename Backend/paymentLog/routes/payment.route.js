@@ -1,5 +1,5 @@
 const express = require('express')
-const { logIncome, logExpense, allPayment, paymentByDate, deleteAllLog } = require('../controllers/payment.controller')
+const { logIncome, logExpense, allPayment, paymentByDate, deleteAllLog, exportPDF } = require('../controllers/payment.controller')
 const router = express.Router()
 
 
@@ -8,5 +8,6 @@ router.post('/log-expense', logExpense)
 router.get('/all-payment', allPayment)
 router.get('/payment-by-date', paymentByDate)
 router.delete('/delete-all-log', deleteAllLog)
+router.get('/export-pdf', exportPDF)
 
 module.exports = router
