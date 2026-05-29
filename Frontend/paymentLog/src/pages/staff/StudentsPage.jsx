@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import api from '../../utils/api';
@@ -33,6 +33,68 @@ const Modal = ({ title, onClose, children }) => (
     </div>
   </div>
 );
+
+function ActionMenu({ items }) {
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+
+  useEffect(() => {
+    if (!pos) return;
+    const handler = (e) => { if (btnRef.current && !btnRef.current.contains(e.target)) setPos(null); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [pos]);
+
+  const toggle = () => {
+    if (pos) { setPos(null); return; }
+    const r = btnRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+  };
+
+  return (
+    <div style={{ display: 'inline-block' }}>
+      <button
+        ref={btnRef}
+        onClick={toggle}
+        style={{
+          background: pos ? C.surfaceHigh : 'transparent',
+          border: `1px solid ${pos ? C.border : 'transparent'}`,
+          borderRadius: '6px', padding: '4px 6px', cursor: 'pointer',
+          color: C.muted, display: 'flex', alignItems: 'center',
+        }}
+        onMouseEnter={e => { if (!pos) { e.currentTarget.style.background = C.surfaceLow; e.currentTarget.style.borderColor = C.border; }}}
+        onMouseLeave={e => { if (!pos) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>more_vert</span>
+      </button>
+      {pos && (
+        <div style={{
+          position: 'fixed', top: pos.top, right: pos.right,
+          background: '#fff', border: `1px solid ${C.border}`, borderRadius: '8px',
+          boxShadow: '0 8px 24px rgba(0,15,34,0.12)', zIndex: 999,
+          minWidth: '150px', overflow: 'hidden',
+        }}>
+          {items.map(({ label, color, icon, onClick: act, hidden }) => hidden ? null : (
+            <button
+              key={label}
+              onClick={() => { act(); setPos(null); }}
+              style={{
+                width: '100%', background: 'none', border: 'none', padding: '10px 14px',
+                textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600',
+                color: color || C.text, display: 'flex', alignItems: 'center', gap: '8px',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = C.surfaceLow}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>{icon}</span>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const SCHEMA = Yup.object({
   fullName: Yup.string().required('Full name is required'),
@@ -197,13 +259,11 @@ export default function StudentsPage() {
                       <span style={{ background: sc.bg, color: sc.color, padding: '3px 10px', borderRadius: '50px', fontSize: '12px', fontWeight: '600' }}>{sc.label}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <button onClick={() => setModal({ mode: 'edit', student: s })} style={{ background: `rgba(88,56,32,0.08)`, border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: C.primary, fontSize: '13px', fontWeight: '600' }}>Edit</button>
-                        {!s.userId && (
-                          <button onClick={() => { setCreateAccountModal(s); setAccountForm({ email: s.email || '', password: '' }); }} style={{ background: 'rgba(37,99,235,0.08)', border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#2563EB', fontSize: '13px', fontWeight: '600' }}>Create Login</button>
-                        )}
-                        <button onClick={() => setDeleteTarget(s)} style={{ background: 'rgba(220,38,38,0.08)', border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#DC2626', fontSize: '13px', fontWeight: '600' }}>Delete</button>
-                      </div>
+                      <ActionMenu items={[
+                        { label: 'Edit', icon: 'edit', onClick: () => setModal({ mode: 'edit', student: s }) },
+                        { label: 'Create Login', icon: 'key', color: '#2563EB', hidden: !!s.userId, onClick: () => { setCreateAccountModal(s); setAccountForm({ email: s.email || '', password: '' }); } },
+                        { label: 'Delete', icon: 'delete', color: '#DC2626', onClick: () => setDeleteTarget(s) },
+                      ]} />
                     </td>
                   </tr>
                 );

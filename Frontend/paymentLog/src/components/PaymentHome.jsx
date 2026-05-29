@@ -360,9 +360,11 @@ export default function PaymentHome() {
 
   const isIncome = paymentType === 'Income';
   const colSpan = isIncome ? 7 : 5;
+  const isSearching = search.trim().length > 0;
 
-  // Fetch payments for selected date
+  // Date-based fetch — runs when no search query is active
   useEffect(() => {
+    if (isSearching) return;
     setLoadingPay(true);
     api.get('/pay/payment-by-date', {
       params: { date: selectedDate, schoolType, type: paymentType },
@@ -370,13 +372,28 @@ export default function PaymentHome() {
       .then(({ data }) => setPayments(data.data || []))
       .catch(console.error)
       .finally(() => setLoadingPay(false));
-  }, [selectedDate, schoolType, paymentType, refresh]);
+  }, [selectedDate, schoolType, paymentType, refresh, isSearching]);
+
+  // Name search — queries all records, debounced 350ms
+  useEffect(() => {
+    if (!isSearching) return;
+    setLoadingPay(true);
+    const timer = setTimeout(() => {
+      api.get('/pay/all-payment', {
+        params: { q: search.trim(), schoolType, type: paymentType },
+      })
+        .then(({ data }) => setPayments(data.data || []))
+        .catch(console.error)
+        .finally(() => setLoadingPay(false));
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search, schoolType, paymentType, refresh, isSearching]);
 
   const handleSuccess = () => { setModal(null); setRefresh(r => r + 1); };
 
-  // Client-side filter on fetched records
+  // Client-side filter on fetched records (purpose + class only; name already handled server-side when searching)
   const filtered = payments.filter(p => {
-    if (search && !p.payer.toLowerCase().includes(search.toLowerCase())) return false;
+    if (!isSearching && search && !p.payer.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterPurpose && p.purpose !== filterPurpose) return false;
     if (filterClass && (p.class || '') !== filterClass) return false;
     return true;
@@ -447,13 +464,15 @@ export default function PaymentHome() {
         display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'flex-end',
       }}>
         {/* Date */}
-        <div>
-          <div style={{ color: C.muted, fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>Date</div>
+        <div style={{ opacity: isSearching ? 0.4 : 1, transition: 'opacity 0.2s' }}>
+          <div style={{ color: C.muted, fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '5px' }}>
+            Date{isSearching ? ' (ignored while searching)' : ''}
+          </div>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            style={filterBarInput}
+            style={{ ...filterBarInput, pointerEvents: isSearching ? 'none' : 'auto' }}
           />
         </div>
 
