@@ -7,7 +7,10 @@ const paymentSchema = mongoose.Schema({
     subTotal: {type:Number, require:true},
     schoolType: {type:String, default:'SEC'},
     date: {type:Date, default:Date.now},
-    type: {type:String, enum:['Income', 'Expense'], default:'Income'}
+    type: {type:String, enum:['Income', 'Expense'], default:'Income'},
+    purpose: {type:String, default:''},
+    class: {type:String, default:''},
+    studentId: {type:mongoose.Schema.Types.ObjectId, ref:'Student', default:null}
 })
 
 let paymentModel = mongoose.model('paymentlog', paymentSchema)

@@ -4,10 +4,8 @@ const PDFDocument = require('pdfkit')
 
 const logIncome = async (req, res) => {
     try {
-        const { payer, amount, schoolType } = req.body;
+        const { payer, amount, schoolType, purpose, class: studentClass, studentId } = req.body;
 
-        // Find the most recent payment entry and calculate new payId and subtotal
-        // Filter by type 'Income' or where type is not set (for legacy data)
         const latestPayment = await paymentModel.findOne({
             schoolType,
             $or: [{ type: 'Income' }, { type: { $exists: false } }]
@@ -15,32 +13,29 @@ const logIncome = async (req, res) => {
 
         const newPayId = latestPayment ? parseInt(latestPayment.payId) + 1 : 1;
 
-
-        // Get the current date in 'MM/DD/YYYY' format
         const today = new Date();
-        const todayDate = today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+        const todayDate = today.toISOString().split('T')[0];
 
         let newSubtotal;
         if (latestPayment && latestPayment.date.toISOString().split('T')[0] === todayDate) {
-            // If the latest entry is from today, add to the subtotal
             newSubtotal = latestPayment.subTotal + amount;
         } else {
-            // If no entries today, start a new subtotal with the current amount
-            newSubtotal = amount;   
+            newSubtotal = amount;
         }
-        // Create a new payment entry
+
         const newPayment = new paymentModel({
             payId: newPayId,
             payer,
             amount,
             subTotal: newSubtotal,
             schoolType,
-            type: 'Income'
+            type: 'Income',
+            purpose: purpose || '',
+            class: studentClass || '',
+            studentId: studentId || null,
         });
 
-        // Save the new payment entry to the database
         const data = await newPayment.save();
-
         res.send({ status: true, message: 'Payment logged successfully', data });
     } catch (err) {
         res.status(500).send({ status: false, message: 'Error logging payment', error: err.message });
@@ -49,9 +44,8 @@ const logIncome = async (req, res) => {
 
 const logExpense = async (req, res) => {
     try {
-        const { payer, amount, schoolType } = req.body;
+        const { payer, amount, schoolType, purpose } = req.body;
 
-        // Find the most recent expense entry
         const latestExpense = await paymentModel.findOne({
             schoolType,
             type: 'Expense'
@@ -59,27 +53,24 @@ const logExpense = async (req, res) => {
 
         const newPayId = latestExpense ? parseInt(latestExpense.payId) + 1 : 1;
 
-        // Get the current date in 'MM/DD/YYYY' format
         const today = new Date();
-        const todayDate = today.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+        const todayDate = today.toISOString().split('T')[0];
 
         let newSubtotal;
         if (latestExpense && latestExpense.date.toISOString().split('T')[0] === todayDate) {
-            // If the latest entry is from today, add to the subtotal
             newSubtotal = latestExpense.subTotal + amount;
         } else {
-            // If no entries today, start a new subtotal with the current amount
-            newSubtotal = amount;   
+            newSubtotal = amount;
         }
 
-        // Create a new expense entry
         const newExpense = new paymentModel({
             payId: newPayId,
             payer,
             amount,
-            subTotal: newSubtotal, // Running total for expenses
+            subTotal: newSubtotal,
             schoolType,
-            type: 'Expense'
+            type: 'Expense',
+            purpose: purpose || '',
         });
 
         const data = await newExpense.save();
@@ -89,61 +80,64 @@ const logExpense = async (req, res) => {
     }
 };
 
-const paymentByDate = async (req, res)=>{
-    try{
-        const { date, schoolType, type } = req.query
+const paymentByDate = async (req, res) => {
+    try {
+        const { date, schoolType, type } = req.query;
 
         const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0); // Set time to 00:00:00.000
-
+        startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999); // Set time to 23:59:59.999
-        
+        endOfDay.setHours(23, 59, 59, 999);
+
         const records = await paymentModel.find({
             schoolType,
             type,
-            date: {
-                $gte: startOfDay,
-                $lte: endOfDay
-               }
-            });
+            date: { $gte: startOfDay, $lte: endOfDay },
+        });
 
-
-        res.send({status:true,message:'payment data fetched successfully', data:records})
-    }catch{
-        res.status(500).send({status:false,message:'Error fetching payment data'})
+        res.send({ status: true, message: 'payment data fetched successfully', data: records });
+    } catch {
+        res.status(500).send({ status: false, message: 'Error fetching payment data' });
     }
-}
+};
 
-const allPayment = async (req, res)=>{
-    const { schoolType, type } = req.query
-    try{
-        const data = await paymentModel.find({schoolType, type});
-        res.send({status:true,message:'All payment data',data})
-    }catch{
-        res.status(500).send({status:false,message:'Error fetching payment data'})
+const allPayment = async (req, res) => {
+    const { schoolType, type, q, purpose, class: cls } = req.query;
+    try {
+        const query = { schoolType, type };
+        if (q) query.payer = { $regex: q, $options: 'i' };
+        if (purpose) query.purpose = purpose;
+        if (cls) query['class'] = cls;
+        const data = await paymentModel.find(query).sort({ date: 1 });
+        res.send({ status: true, message: 'All payment data', data });
+    } catch {
+        res.status(500).send({ status: false, message: 'Error fetching payment data' });
     }
-
-}
+};
 
 const deleteAllLog = async (req, res) => {
-    const { schoolType, type } = req.query
-    try {
-        await paymentModel.deleteMany({schoolType, type});
-        res.send({ status: true, message: 'All payment logs deleted successfully' });
-    } 
-    catch (err) {
-        res.status(500).send({ status: false, message: 'Error deleting payment logs',error: err.message });
-    }
-}
-
-const exportPDF = async (req, res) => {
     const { schoolType, type } = req.query;
     try {
-        const payments = await paymentModel.find({ schoolType, type }).sort({ date: 1 });
+        await paymentModel.deleteMany({ schoolType, type });
+        res.send({ status: true, message: 'All payment logs deleted successfully' });
+    } catch (err) {
+        res.status(500).send({ status: false, message: 'Error deleting payment logs', error: err.message });
+    }
+};
+
+const exportPDF = async (req, res) => {
+    const { schoolType, type, q, purpose, class: cls } = req.query;
+    try {
+        const query = { schoolType, type };
+        if (q) query.payer = { $regex: q, $options: 'i' };
+        if (purpose) query.purpose = purpose;
+        if (cls) query['class'] = cls;
+
+        const payments = await paymentModel.find(query).sort({ date: 1 });
         const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
 
-        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+        // Landscape A4 so Purpose + Class fit comfortably
+        const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape' });
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
@@ -152,43 +146,56 @@ const exportPDF = async (req, res) => {
         );
         doc.pipe(res);
 
-        // Title
-        doc.fontSize(18).font('Helvetica-Bold')
-            .text(`${schoolType} School — ${type} Log`, { align: 'center' });
-        doc.moveDown(0.5);
-        doc.fontSize(10).font('Helvetica')
+        // Title block
+        doc.fontSize(16).font('Helvetica-Bold')
+            .text(`${schoolType === 'SEC' ? 'Secondary' : 'Primary'} School — ${type} Log`, { align: 'center' });
+        doc.moveDown(0.4);
+        doc.fontSize(9).font('Helvetica')
             .text(`Generated: ${new Date().toLocaleDateString('en-GB', { dateStyle: 'full' })}`, { align: 'center' });
+        if (q || purpose || cls) {
+            const filters = [q && `Payer: "${q}"`, purpose && `Purpose: ${purpose}`, cls && `Class: ${cls}`].filter(Boolean).join(' · ');
+            doc.fontSize(8).fillColor('#666666').text(`Filters — ${filters}`, { align: 'center' });
+        }
         doc.moveDown(1);
 
-        // Table header
         const tableTop = doc.y;
-        const colX = { sn: 40, payer: 80, amount: 300, payId: 400, date: 460 };
+        const isIncome = type === 'Income';
 
-        doc.fontSize(10).font('Helvetica-Bold');
+        // Column x-positions depend on type
+        const colX = isIncome
+            ? { sn: 40, payer: 70, cls: 240, purpose: 315, amount: 430, payId: 520, date: 600 }
+            : { sn: 40, payer: 70, amount: 380, payId: 470, date: 550 };
+
+        doc.fontSize(9).font('Helvetica-Bold').fillColor('#000000');
         doc.text('S/N', colX.sn, tableTop);
-        doc.text(type === 'Income' ? "Payer's Name" : 'Title', colX.payer, tableTop);
+        doc.text(isIncome ? "Payer's Name" : 'Title', colX.payer, tableTop);
+        if (isIncome) {
+            doc.text('Class', colX.cls, tableTop);
+            doc.text('Purpose', colX.purpose, tableTop);
+        }
         doc.text('Amount (₦)', colX.amount, tableTop);
         doc.text('Pay ID', colX.payId, tableTop);
         doc.text('Date', colX.date, tableTop);
 
-        doc.moveTo(40, tableTop + 15).lineTo(560, tableTop + 15).stroke();
+        const lineEnd = isIncome ? 760 : 680;
+        doc.moveTo(40, tableTop + 15).lineTo(lineEnd, tableTop + 15).stroke();
 
-        // Table rows
-        doc.font('Helvetica').fontSize(9);
+        doc.font('Helvetica').fontSize(8);
         let y = tableTop + 22;
 
         payments.forEach((p, i) => {
-            if (y > 750) {
-                doc.addPage();
-                y = 40;
-            }
-            const rowColor = i % 2 === 0 ? '#FFFFFF' : '#F5F5F5';
-            doc.rect(40, y - 4, 520, 18).fill(rowColor).stroke('#E0E0E0');
+            if (y > 520) { doc.addPage(); y = 40; }
+            const rowColor = i % 2 === 0 ? '#FFFFFF' : '#F5F7FF';
+            doc.rect(40, y - 4, lineEnd - 40, 18).fill(rowColor).stroke('#E0E0E0');
             doc.fillColor('#000000');
 
             doc.text(String(i + 1), colX.sn, y);
-            doc.text(p.payer, colX.payer, y, { width: 210, ellipsis: true });
-            doc.text(`#${p.amount.toLocaleString()}`, colX.amount, y);
+            doc.text(p.payer || '', colX.payer, y, { width: 165, ellipsis: true });
+            if (isIncome) {
+                doc.text(p.class || '—', colX.cls, y, { width: 68 });
+                doc.text(p.purpose || '—', colX.purpose, y, { width: 108, ellipsis: true });
+            }
+            doc.text(`₦${p.amount.toLocaleString()}`, colX.amount, y);
             doc.text(`${p.schoolType}-00${p.payId}`, colX.payId, y);
             doc.text(new Date(p.date).toLocaleDateString('en-GB'), colX.date, y);
 
@@ -196,11 +203,11 @@ const exportPDF = async (req, res) => {
         });
 
         // Total row
-        doc.moveTo(40, y + 4).lineTo(560, y + 4).stroke();
+        doc.moveTo(40, y + 4).lineTo(lineEnd, y + 4).stroke();
         y += 10;
         doc.font('Helvetica-Bold').fontSize(10);
         doc.text('TOTAL', colX.payer, y);
-        doc.text(`#${totalAmount.toLocaleString()}`, colX.amount, y);
+        doc.text(`₦${totalAmount.toLocaleString()}`, colX.amount, y);
 
         doc.end();
     } catch (err) {
