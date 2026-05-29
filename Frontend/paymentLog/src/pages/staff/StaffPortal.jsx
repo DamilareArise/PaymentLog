@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/staff/Sidebar';
 import { C } from '../../utils/constants';
 
 const PAGE_TITLES = {
-  '/staff/dashboard': 'Dashboard',
+  '/staff/dashboard': 'Staff Dashboard',
   '/staff/students': 'Students',
   '/staff/staff-mgmt': 'Staff Management',
   '/staff/subjects': 'Subjects',
@@ -14,56 +13,89 @@ const PAGE_TITLES = {
   '/staff/payments': 'Payments',
 };
 
+const ff = 'Inter, system-ui, sans-serif';
+
 export default function StaffPortal() {
-  const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
   const title = PAGE_TITLES[location.pathname] || 'Staff Portal';
+  const profile = user?.profile;
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
-      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(p => !p)} />
+    <div style={{ background: C.bg, minHeight: '100vh', fontFamily: ff }}>
+      <Sidebar />
 
-      {/* Main area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: C.bg }}>
-        {/* TopBar */}
-        <div style={{
-          height: '64px', background: C.white, borderBottom: `1px solid ${C.border}`,
+      {/* Main area — offset by sidebar width */}
+      <div style={{ marginLeft: '280px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+
+        {/* Fixed top bar */}
+        <header style={{
+          position: 'fixed', top: 0, right: 0, left: '280px', height: '64px',
+          background: C.white, borderBottom: `1px solid ${C.border}`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 28px', flexShrink: 0
+          padding: '0 40px', zIndex: 30, fontFamily: ff,
         }}>
-          <div>
-            <h1 style={{ color: C.text, fontSize: '20px', fontWeight: '700', margin: 0 }}>{title}</h1>
-            <div style={{ color: C.muted, fontSize: '12px' }}>
-              {new Date().toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <span style={{ color: C.primary, fontSize: '20px', fontWeight: '700', letterSpacing: '-0.01em' }}>
+              {title}
+            </span>
+            {/* Search */}
+            <div style={{ position: 'relative', width: '320px' }}>
+              <span className="material-symbols-outlined" style={{
+                position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
+                color: C.muted, fontSize: '18px'
+              }}>search</span>
+              <input
+                placeholder="Search students, staff, records…"
+                style={{
+                  width: '100%', paddingLeft: '40px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px',
+                  background: C.surface, border: `1px solid ${C.border}`, borderRadius: '8px',
+                  fontSize: '14px', color: C.text, outline: 'none', fontFamily: ff,
+                  boxSizing: 'border-box',
+                }}
+                onFocus={e => { e.target.style.borderColor = C.secondary; e.target.style.boxShadow = `0 0 0 2px ${C.secondaryContainer}60`; }}
+                onBlur={e => { e.target.style.borderColor = C.border; e.target.style.boxShadow = 'none'; }}
+              />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              background: C.light, border: `1px solid ${C.border}`, borderRadius: '50px',
-              padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '8px'
-            }}>
-              <div style={{
-                width: '28px', height: '28px', borderRadius: '50%', background: C.primary,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: C.white, fontWeight: '700', fontSize: '12px'
-              }}>
-                {user?.profile?.fullName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <div>
-                <div style={{ color: C.text, fontSize: '13px', fontWeight: '600' }}>
-                  {user?.profile?.fullName || user?.email}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button style={{ padding: '8px', background: 'none', border: 'none', color: C.muted, cursor: 'pointer', borderRadius: '8px', display: 'flex' }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.primary; e.currentTarget.style.background = C.surfaceLow; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.muted; e.currentTarget.style.background = 'none'; }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>notifications</span>
+            </button>
+            <button style={{ padding: '8px', background: 'none', border: 'none', color: C.muted, cursor: 'pointer', borderRadius: '8px', display: 'flex' }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.primary; e.currentTarget.style.background = C.surfaceLow; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.muted; e.currentTarget.style.background = 'none'; }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>help_outline</span>
+            </button>
+            <div style={{ width: '1px', height: '32px', background: C.border, margin: '0 8px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: C.text, fontSize: '13px', fontWeight: '700' }}>
+                  {profile?.fullName || user?.email}
                 </div>
                 <div style={{ color: C.muted, fontSize: '11px', textTransform: 'capitalize' }}>{user?.role}</div>
               </div>
+              <div style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                background: C.surfaceHigh, border: `1px solid ${C.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: C.primary, fontWeight: '700', fontSize: '14px', flexShrink: 0,
+              }}>
+                {profile?.fullName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+              </div>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Page content */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '28px' }}>
+        <main style={{ paddingTop: '88px', padding: '88px 40px 40px' }}>
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );

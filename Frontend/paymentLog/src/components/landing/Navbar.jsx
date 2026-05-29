@@ -1,140 +1,117 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const C = {
-  primary: '#583820',
-  dark: '#3D2714',
-  gold: '#D4A853',
-  white: '#FFFFFF',
+const scrollTo = (id) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
 };
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [portalsOpen, setPortalsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const portalsRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const scrollTo = (id) => {
-    setMenuOpen(false);
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (portalsRef.current && !portalsRef.current.contains(e.target)) {
+        setPortalsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
 
   const navLinks = [
     { label: 'Home', action: () => scrollTo('hero') },
-    { label: 'About', action: () => scrollTo('about') },
-    { label: 'Programs', action: () => scrollTo('programs') },
+    { label: 'About', action: () => scrollTo('story') },
     { label: 'Admissions', action: () => scrollTo('admissions') },
     { label: 'Contact', action: () => scrollTo('contact') },
   ];
 
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-      background: scrolled ? C.dark : 'rgba(61,39,20,0.95)',
-      backdropFilter: 'blur(8px)',
-      transition: 'background 0.3s ease',
-      boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.3)' : 'none'
-    }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px' }}>
+    <header className={`fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant/30 h-20 transition-shadow duration-300 ${scrolled ? 'shadow-xl' : ''}`}>
+      <div className="flex justify-between items-center max-w-[1280px] mx-auto px-margin-desktop h-full">
 
-          {/* Logo */}
-          <button onClick={() => scrollTo('hero')} style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0
-          }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
-              background: C.gold, display: 'flex', alignItems: 'center',
-              justifyContent: 'center', fontWeight: '800', fontSize: '14px', color: C.dark
-            }}>OOS</div>
-            <span style={{ color: C.white, fontWeight: '700', fontSize: '16px', lineHeight: '1.2' }}>
-              Ore Ofe Oluwa<br />
-              <span style={{ color: C.gold, fontSize: '12px', fontWeight: '400' }}>Schools</span>
-            </span>
-          </button>
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 no-underline" onClick={() => scrollTo('hero')}>
+          <span className="material-symbols-outlined text-primary text-3xl">school</span>
+          <span className="font-serif text-2xl font-semibold text-primary tracking-tight">ORE OFE OLUWA SCHOOLS</span>
+        </Link>
 
-          {/* Desktop Nav */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} className="desktop-nav">
-            {navLinks.map(({ label, action }) => (
-              <button key={label} onClick={action} style={{
-                background: 'none', border: 'none', color: C.white, cursor: 'pointer',
-                padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: '500',
-                transition: 'color 0.2s, background 0.2s'
-              }}
-                onMouseEnter={e => { e.target.style.color = C.gold; e.target.style.background = 'rgba(212,168,83,0.1)'; }}
-                onMouseLeave={e => { e.target.style.color = C.white; e.target.style.background = 'none'; }}
-              >{label}</button>
-            ))}
-            <button onClick={() => navigate('/student-login')} style={{
-              background: 'none', border: `1px solid rgba(255,255,255,0.4)`, color: C.white,
-              cursor: 'pointer', padding: '7px 14px', borderRadius: '6px', fontSize: '14px',
-              marginLeft: '8px', transition: 'all 0.2s'
-            }}
-              onMouseEnter={e => { e.target.style.borderColor = C.gold; e.target.style.color = C.gold; }}
-              onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.4)'; e.target.style.color = C.white; }}
-            >Student Portal</button>
-            <button onClick={() => navigate('/staff-login')} style={{
-              background: C.gold, border: 'none', color: C.dark,
-              cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontSize: '14px',
-              fontWeight: '600', transition: 'all 0.2s'
-            }}
-              onMouseEnter={e => e.target.style.background = '#C89040'}
-              onMouseLeave={e => e.target.style.background = C.gold}
-            >Staff Portal</button>
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          {navLinks.map(({ label, action }) => (
+            <button key={label} onClick={action}
+              className="text-on-surface-variant font-sans font-semibold text-sm tracking-widest hover:text-on-surface transition-colors duration-300 bg-transparent border-none cursor-pointer uppercase"
+            >{label}</button>
+          ))}
+
+          {/* Portals dropdown */}
+          <div ref={portalsRef} className="relative">
+            <button
+              onClick={() => setPortalsOpen(p => !p)}
+              className="bg-primary text-on-primary px-6 py-2 font-sans font-semibold text-sm tracking-widest uppercase hover:brightness-110 active:opacity-80 transition-all cursor-pointer border-none"
+            >
+              PORTALS
+            </button>
+            {portalsOpen && (
+              <div className="absolute top-full right-0 mt-1 bg-surface-container border border-outline-variant/40 py-2 min-w-[180px] shadow-2xl z-10">
+                <Link to="/student-login"
+                  onClick={() => setPortalsOpen(false)}
+                  className="flex items-center gap-2 px-5 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high font-sans text-sm tracking-wide no-underline transition-colors"
+                >
+                  <span className="material-symbols-outlined text-base">school</span>
+                  Student Portal
+                </Link>
+                <Link to="/staff-login"
+                  onClick={() => setPortalsOpen(false)}
+                  className="flex items-center gap-2 px-5 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high font-sans text-sm tracking-wide no-underline transition-colors"
+                >
+                  <span className="material-symbols-outlined text-base">manage_accounts</span>
+                  Staff Portal
+                </Link>
+              </div>
+            )}
           </div>
+        </nav>
 
-          {/* Mobile Hamburger */}
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{
-            display: 'none', background: 'none', border: 'none',
-            cursor: 'pointer', padding: '4px', color: C.white
-          }} className="hamburger">
-            <div style={{ width: '24px', height: '2px', background: menuOpen ? 'transparent' : C.white, position: 'relative', transition: 'all 0.3s' }}>
-              <div style={{ position: 'absolute', width: '24px', height: '2px', background: C.white, top: menuOpen ? 0 : '-8px', transform: menuOpen ? 'rotate(45deg)' : 'none', transition: 'all 0.3s' }} />
-              <div style={{ position: 'absolute', width: '24px', height: '2px', background: C.white, top: menuOpen ? 0 : '8px', transform: menuOpen ? 'rotate(-45deg)' : 'none', transition: 'all 0.3s' }} />
-            </div>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div style={{
-            borderTop: '1px solid rgba(255,255,255,0.1)',
-            paddingBottom: '16px',
-            display: 'flex', flexDirection: 'column', gap: '4px'
-          }}>
-            {navLinks.map(({ label, action }) => (
-              <button key={label} onClick={action} style={{
-                background: 'none', border: 'none', color: C.white, cursor: 'pointer',
-                padding: '12px 8px', fontSize: '15px', textAlign: 'left', borderRadius: '6px'
-              }}>{label}</button>
-            ))}
-            <button onClick={() => { setMenuOpen(false); navigate('/student-login'); }} style={{
-              background: 'rgba(212,168,83,0.15)', border: `1px solid ${C.gold}`, color: C.gold,
-              cursor: 'pointer', padding: '10px 12px', borderRadius: '6px', fontSize: '15px',
-              textAlign: 'left', marginTop: '8px'
-            }}>Student Portal</button>
-            <button onClick={() => { setMenuOpen(false); navigate('/staff-login'); }} style={{
-              background: C.gold, border: 'none', color: C.dark,
-              cursor: 'pointer', padding: '10px 12px', borderRadius: '6px', fontSize: '15px',
-              fontWeight: '600', textAlign: 'left'
-            }}>Staff Portal</button>
-          </div>
-        )}
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden bg-transparent border-none cursor-pointer text-on-surface p-2"
+          onClick={() => setMobileOpen(p => !p)}
+        >
+          <span className="material-symbols-outlined text-2xl">
+            {mobileOpen ? 'close' : 'menu'}
+          </span>
+        </button>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-nav { display: none !important; }
-          .hamburger { display: block !important; }
-        }
-      `}</style>
-    </nav>
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-surface-container border-t border-outline-variant/30 px-margin-mobile py-4 space-y-1">
+          {navLinks.map(({ label, action }) => (
+            <button key={label} onClick={() => { action(); setMobileOpen(false); }}
+              className="block w-full text-left px-4 py-3 text-on-surface-variant hover:text-primary font-sans text-sm tracking-widest uppercase bg-transparent border-none cursor-pointer"
+            >{label}</button>
+          ))}
+          <div className="pt-2 space-y-2">
+            <Link to="/student-login" onClick={() => setMobileOpen(false)}
+              className="block px-4 py-3 border border-outline text-on-surface font-sans text-sm text-center no-underline hover:bg-surface-container-high transition-colors"
+            >Student Portal</Link>
+            <Link to="/staff-login" onClick={() => setMobileOpen(false)}
+              className="block px-4 py-3 bg-primary text-on-primary font-sans font-semibold text-sm text-center no-underline hover:brightness-110 transition-all"
+            >Staff Portal</Link>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }

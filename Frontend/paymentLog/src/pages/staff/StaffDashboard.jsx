@@ -3,28 +3,84 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { C, STATUS_COLORS } from '../../utils/constants';
 
-const StatCard = ({ icon, label, value, sub, color, onClick }) => (
-  <div onClick={onClick} style={{
-    background: C.white, borderRadius: '16px', padding: '24px',
-    border: `1px solid ${C.border}`, cursor: onClick ? 'pointer' : 'default',
-    transition: 'transform 0.15s, box-shadow 0.15s', display: 'flex', flexDirection: 'column', gap: '12px'
-  }}
-    onMouseEnter={e => { if (onClick) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(88,56,32,0.12)'; }}}
-    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-  >
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-      <div style={{
-        width: '44px', height: '44px', borderRadius: '12px',
-        background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px'
-      }}>{icon}</div>
+const ff = 'Inter, system-ui, sans-serif';
+
+const card = {
+  background: C.white, border: `1px solid ${C.border}`, borderRadius: '10px',
+  padding: '24px', position: 'relative', overflow: 'hidden',
+};
+
+// Simulated monthly enrollment for chart
+const CHART_DATA = [
+  { month: 'Sep', pct: 42 }, { month: 'Oct', pct: 58 },
+  { month: 'Nov', pct: 74 }, { month: 'Dec', pct: 67 },
+  { month: 'Jan', pct: 85 }, { month: 'Feb', pct: 95 },
+];
+
+function StatCard({ icon, label, value, sub, subColor, onClick, accentBg }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        ...card,
+        cursor: onClick ? 'pointer' : 'default',
+        transform: hovered && onClick ? 'translateY(-2px)' : 'none',
+        boxShadow: hovered && onClick ? '0 8px 24px rgba(0,15,34,0.1)' : 'none',
+        transition: 'transform 0.15s, box-shadow 0.15s',
+        display: 'flex', flexDirection: 'column', gap: '10px',
+      }}
+    >
+      <div style={{ position: 'absolute', top: 0, right: 0, padding: '16px', opacity: hovered ? 0.2 : 0.08, transition: 'opacity 0.2s' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '56px', color: C.primary }}>{icon}</span>
+      </div>
+      <span style={{ color: C.muted, fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: ff }}>
+        {label}
+      </span>
+      <div style={{ color: C.primary, fontSize: '32px', fontWeight: '700', lineHeight: 1, fontFamily: ff }}>
+        {value ?? '—'}
+      </div>
+      {sub && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ color: subColor || C.muted, fontSize: '12px', fontWeight: '600', fontFamily: ff }}>{sub}</span>
+        </div>
+      )}
     </div>
-    <div>
-      <div style={{ color: C.text, fontSize: '28px', fontWeight: '800' }}>{value ?? '—'}</div>
-      <div style={{ color: C.muted, fontSize: '13px', marginTop: '2px' }}>{label}</div>
-      {sub && <div style={{ color, fontSize: '12px', marginTop: '6px', fontWeight: '600' }}>{sub}</div>}
-    </div>
-  </div>
-);
+  );
+}
+
+function QuickActionBtn({ icon, label, iconBg, iconColor, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 16px', background: hov ? C.surfaceLow : C.white,
+        border: `1px solid ${C.border}`, borderRadius: '8px',
+        transition: 'all 0.15s', cursor: 'pointer', textAlign: 'left', fontFamily: ff,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{
+          width: '36px', height: '36px', borderRadius: '6px',
+          background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '18px', color: iconColor }}>{icon}</span>
+        </div>
+        <span style={{ fontSize: '14px', fontWeight: '600', color: C.text }}>{label}</span>
+      </div>
+      <span className="material-symbols-outlined" style={{
+        fontSize: '18px', color: C.muted,
+        transform: hov ? 'translateX(2px)' : 'none', transition: 'transform 0.15s',
+      }}>chevron_right</span>
+    </button>
+  );
+}
 
 export default function StaffDashboard() {
   const [stats, setStats] = useState(null);
@@ -39,122 +95,217 @@ export default function StaffDashboard() {
   }, []);
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
-      <div style={{ color: C.muted, fontSize: '15px' }}>Loading dashboard…</div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', color: C.muted, fontFamily: ff }}>
+      <span className="material-symbols-outlined" style={{ fontSize: '32px', marginRight: '12px', animation: 'spin 1s linear infinite' }}>refresh</span>
+      Loading dashboard…
     </div>
   );
 
-  return (
-    <div style={{ maxWidth: '1200px' }}>
-      <div style={{ marginBottom: '28px' }}>
-        <h2 style={{ color: C.text, fontSize: '22px', fontWeight: '700', margin: 0 }}>Welcome back 👋</h2>
-        <p style={{ color: C.muted, margin: '4px 0 0', fontSize: '14px' }}>Here's what's happening at Ore Ofe Oluwa Schools today.</p>
-      </div>
+  const maxPct = Math.max(...CHART_DATA.map(d => d.pct));
 
-      {/* Stats grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-        <StatCard icon="👥" label="Admitted Students" value={stats?.totalStudents} color="#583820" onClick={() => navigate('/staff/students')} />
-        <StatCard icon="👔" label="Active Staff" value={stats?.totalStaff} color="#16A34A" onClick={() => navigate('/staff/staff-mgmt')} />
-        <StatCard icon="📚" label="Subjects" value={stats?.totalSubjects} color="#2563EB" onClick={() => navigate('/staff/subjects')} />
-        <StatCard icon="📋" label="Pending Admissions" value={stats?.pendingAdmissions}
-          sub={stats?.pendingAdmissions > 0 ? 'Needs review' : 'All reviewed'}
-          color={stats?.pendingAdmissions > 0 ? '#D97706' : '#16A34A'}
+  return (
+    <div style={{ maxWidth: '1200px', fontFamily: ff }}>
+
+      {/* Stat cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '20px', marginBottom: '28px' }}>
+        <StatCard icon="group" label="Total Students" value={stats?.totalStudents?.toLocaleString()} sub="Admitted students" subColor="#16a34a" onClick={() => navigate('/staff/students')} />
+        <StatCard icon="badge" label="Active Staff" value={stats?.totalStaff} sub="Full faculty" subColor={C.muted} onClick={() => navigate('/staff/staff-mgmt')} />
+        <StatCard icon="person_add" label="Pending Admissions" value={stats?.pendingAdmissions}
+          sub={stats?.pendingAdmissions > 0 ? 'Requires review' : 'All reviewed'}
+          subColor={stats?.pendingAdmissions > 0 ? C.secondary : '#16a34a'}
           onClick={() => navigate('/staff/admissions')}
         />
+        <StatCard icon="menu_book" label="Subjects" value={stats?.totalSubjects} sub="Across all levels" subColor={C.muted} onClick={() => navigate('/staff/subjects')} />
       </div>
 
-      {/* Two columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+      {/* Main bento grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '24px', marginBottom: '24px' }}>
 
-        {/* Recent students */}
-        <div style={{ background: C.white, borderRadius: '16px', border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-          <div style={{ padding: '18px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ color: C.text, fontSize: '15px', fontWeight: '700', margin: 0 }}>Recent Students</h3>
-            <button onClick={() => navigate('/staff/students')} style={{
-              background: 'none', border: 'none', color: C.primary, cursor: 'pointer', fontSize: '13px', fontWeight: '600'
-            }}>View all →</button>
+        {/* Left: Chart + Recent students */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Enrollment chart */}
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ color: C.primary, fontSize: '18px', fontWeight: '700', margin: 0 }}>Student Enrollment Trends</h3>
+              <span style={{
+                background: C.surfaceLow, border: `1px solid ${C.border}`, borderRadius: '6px',
+                padding: '4px 12px', fontSize: '12px', color: C.muted, fontWeight: '500',
+              }}>Academic Year {new Date().getFullYear()}/{new Date().getFullYear() + 1}</span>
+            </div>
+            <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', padding: '0 8px' }}>
+              {CHART_DATA.map(({ month, pct }) => (
+                <div key={month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                  <div style={{
+                    width: '100%', borderRadius: '4px 4px 0 0',
+                    height: `${(pct / maxPct) * 180}px`,
+                    background: pct === maxPct ? C.secondary : C.surfaceHigh,
+                    transition: 'background 0.2s',
+                  }} />
+                  <span style={{ fontSize: '11px', color: C.muted, fontWeight: '500' }}>{month}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div>
-            {stats?.recentStudents?.length === 0 && (
-              <div style={{ padding: '24px', textAlign: 'center', color: C.muted, fontSize: '14px' }}>No students yet</div>
-            )}
-            {stats?.recentStudents?.map(s => (
+
+          {/* Recent students */}
+          <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
+            <div style={{
+              padding: '16px 20px', borderBottom: `1px solid ${C.border}`,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              background: `${C.surfaceLow}50`,
+            }}>
+              <h3 style={{ color: C.primary, fontSize: '16px', fontWeight: '700', margin: 0 }}>Recent Students</h3>
+              <button onClick={() => navigate('/staff/students')} style={{
+                background: 'none', border: 'none', color: C.secondary, cursor: 'pointer',
+                fontSize: '13px', fontWeight: '600', fontFamily: ff,
+              }}>View all</button>
+            </div>
+            {!stats?.recentStudents?.length ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: C.muted, fontSize: '14px' }}>No students yet</div>
+            ) : stats.recentStudents.map(s => (
               <div key={s._id} style={{
                 padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                borderBottom: `1px solid ${C.border}`
+                borderBottom: `1px solid ${C.border}`,
               }}>
                 <div style={{
-                  width: '36px', height: '36px', borderRadius: '50%', background: `rgba(88,56,32,0.1)`,
+                  width: '34px', height: '34px', borderRadius: '50%', background: C.surfaceHigh,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: C.primary, fontWeight: '700', fontSize: '14px', flexShrink: 0
+                  color: C.primary, fontWeight: '700', fontSize: '13px', flexShrink: 0,
                 }}>{s.fullName?.[0]}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: C.text, fontSize: '14px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.fullName}</div>
+                  <div style={{ color: C.text, fontSize: '14px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.fullName}</div>
                   <div style={{ color: C.muted, fontSize: '12px' }}>{s.class} · {s.schoolType}</div>
                 </div>
-                <div style={{ color: C.muted, fontSize: '12px', flexShrink: 0 }}>
-                  {s.admissionNumber}
-                </div>
+                <span style={{ color: C.muted, fontSize: '12px', flexShrink: 0 }}>{s.admissionNumber}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Pending applications */}
-        <div style={{ background: C.white, borderRadius: '16px', border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-          <div style={{ padding: '18px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ color: C.text, fontSize: '15px', fontWeight: '700', margin: 0 }}>Pending Applications</h3>
-            <button onClick={() => navigate('/staff/admissions')} style={{
-              background: 'none', border: 'none', color: C.primary, cursor: 'pointer', fontSize: '13px', fontWeight: '600'
-            }}>Review →</button>
+        {/* Right: Quick actions + Recent activity */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+          {/* Quick actions */}
+          <div style={card}>
+            <h3 style={{ color: C.primary, fontSize: '16px', fontWeight: '700', margin: '0 0 16px' }}>Quick Actions</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <QuickActionBtn icon="person_add" label="Add New Student" iconBg={C.secondaryContainer} iconColor={C.secondary} onClick={() => navigate('/staff/students')} />
+              <QuickActionBtn icon="how_to_reg" label="Review Admissions" iconBg={C.primaryFixed} iconColor={C.primary} onClick={() => navigate('/staff/admissions')} />
+              <QuickActionBtn icon="menu_book" label="Manage Subjects" iconBg={C.surfaceHigh} iconColor={C.primary} onClick={() => navigate('/staff/subjects')} />
+              <QuickActionBtn icon="payments" label="Log Payment" iconBg="rgba(22,163,74,0.12)" iconColor="#16a34a" onClick={() => navigate('/staff/payments')} />
+            </div>
           </div>
-          <div>
-            {stats?.recentApplications?.length === 0 && (
-              <div style={{ padding: '24px', textAlign: 'center', color: C.muted, fontSize: '14px' }}>No pending applications</div>
-            )}
-            {stats?.recentApplications?.map(s => (
-              <div key={s._id} style={{
-                padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                borderBottom: `1px solid ${C.border}`
-              }}>
-                <div style={{
-                  width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(217,119,6,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#B45309', fontWeight: '700', fontSize: '14px', flexShrink: 0
-                }}>{s.fullName?.[0]}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ color: C.text, fontSize: '14px', fontWeight: '600', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.fullName}</div>
-                  <div style={{ color: C.muted, fontSize: '12px' }}>{s.class || 'Class TBD'} · {s.schoolType}</div>
-                </div>
-                <span style={{
-                  background: STATUS_COLORS.pending.bg, color: STATUS_COLORS.pending.color,
-                  fontSize: '11px', padding: '3px 8px', borderRadius: '50px', fontWeight: '600', flexShrink: 0
-                }}>Pending</span>
+
+          {/* Recent applications timeline */}
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ color: C.primary, fontSize: '16px', fontWeight: '700', margin: 0 }}>Recent Activity</h3>
+              <button onClick={() => navigate('/staff/admissions')} style={{
+                background: 'none', border: 'none', color: C.secondary, cursor: 'pointer',
+                fontSize: '13px', fontWeight: '600', fontFamily: ff,
+              }}>View all</button>
+            </div>
+            {!stats?.recentApplications?.length ? (
+              <div style={{ textAlign: 'center', color: C.muted, fontSize: '14px', padding: '16px 0' }}>No recent applications</div>
+            ) : (
+              <div style={{ borderLeft: `2px solid ${C.border}`, marginLeft: '8px', paddingLeft: '20px' }}>
+                {stats.recentApplications.map((s, i) => (
+                  <div key={s._id} style={{ position: 'relative', paddingBottom: i < stats.recentApplications.length - 1 ? '20px' : 0 }}>
+                    <div style={{
+                      position: 'absolute', left: '-29px', top: '2px',
+                      width: '14px', height: '14px', borderRadius: '50%',
+                      background: i === 0 ? C.secondary : C.primary,
+                      border: `2px solid ${C.white}`,
+                    }} />
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: C.text, margin: '0 0 2px' }}>
+                      New Application
+                    </p>
+                    <p style={{ fontSize: '12px', color: C.muted, margin: '0 0 2px' }}>
+                      {s.fullName} · {s.schoolType}
+                    </p>
+                    <p style={{
+                      fontSize: '11px', color: C.border, margin: 0,
+                    }}>{new Date(s.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div style={{ marginTop: '20px', background: C.white, borderRadius: '16px', border: `1px solid ${C.border}`, padding: '20px' }}>
-        <h3 style={{ color: C.text, fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Quick Actions</h3>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          {[
-            { label: '+ Add Student', path: '/staff/students', color: C.primary },
-            { label: '📋 Review Admissions', path: '/staff/admissions', color: '#D97706' },
-            { label: '📚 Add Subject', path: '/staff/subjects', color: '#2563EB' },
-            { label: '💰 Log Payment', path: '/staff/payments', color: '#16A34A' },
-          ].map(({ label, path, color }) => (
-            <button key={label} onClick={() => navigate(path)} style={{
-              background: `${color}12`, border: `1.5px solid ${color}30`, color,
-              padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
-              cursor: 'pointer', transition: 'all 0.15s'
-            }}
-              onMouseEnter={e => { e.target.style.background = `${color}20`; }}
-              onMouseLeave={e => { e.target.style.background = `${color}12`; }}
-            >{label}</button>
-          ))}
+      {/* Pending admissions table */}
+      <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
+        <div style={{
+          padding: '16px 20px', borderBottom: `1px solid ${C.border}`,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: `${C.surfaceLow}40`,
+        }}>
+          <h3 style={{ color: C.primary, fontSize: '16px', fontWeight: '700', margin: 0 }}>Pending Admissions Review</h3>
+          <button onClick={() => navigate('/staff/admissions')} style={{
+            background: C.primary, color: C.white, border: 'none', borderRadius: '6px',
+            padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: ff,
+          }}>View All Admissions</button>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: ff }}>
+            <thead>
+              <tr style={{ background: C.bg }}>
+                {['Candidate', 'Level', 'Class', 'Date', 'Status', ''].map(h => (
+                  <th key={h} style={{
+                    padding: '12px 20px', textAlign: 'left', fontSize: '11px',
+                    fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em',
+                    color: C.muted, borderBottom: `1px solid ${C.border}`,
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {!stats?.recentApplications?.length ? (
+                <tr><td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: C.muted, fontSize: '14px' }}>No pending applications</td></tr>
+              ) : stats.recentApplications.map(s => {
+                const st = STATUS_COLORS[s.admissionStatus] || STATUS_COLORS.pending;
+                return (
+                  <tr key={s._id} style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.1s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = C.surfaceLow; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <td style={{ padding: '12px 20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{
+                          width: '30px', height: '30px', borderRadius: '50%', background: C.surfaceHigh,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: C.primary, fontWeight: '700', fontSize: '12px',
+                        }}>{s.fullName?.[0]}</div>
+                        <span style={{ fontSize: '14px', fontWeight: '600', color: C.text }}>{s.fullName}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 20px', color: C.muted, fontSize: '14px' }}>{s.schoolType}</td>
+                    <td style={{ padding: '12px 20px', color: C.muted, fontSize: '14px' }}>{s.class || '—'}</td>
+                    <td style={{ padding: '12px 20px', color: C.muted, fontSize: '14px' }}>
+                      {new Date(s.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td style={{ padding: '12px 20px' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', padding: '3px 10px',
+                        borderRadius: '999px', fontSize: '11px', fontWeight: '700',
+                        background: st.bg, color: st.color, textTransform: 'uppercase', letterSpacing: '0.05em',
+                      }}>{st.label}</span>
+                    </td>
+                    <td style={{ padding: '12px 20px', textAlign: 'right' }}>
+                      <button onClick={() => navigate('/staff/admissions')} style={{
+                        background: 'none', border: 'none', cursor: 'pointer', color: C.primary,
+                        display: 'flex', alignItems: 'center',
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>visibility</span>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

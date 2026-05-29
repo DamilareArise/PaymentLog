@@ -1,14 +1,29 @@
 export const C = {
-  primary: '#583820',
-  dark: '#3D2714',
-  vdark: '#2D1B10',
-  gold: '#D4A853',
-  light: '#FDF6EC',
-  bg: '#F5F0EB',
-  white: '#FFFFFF',
-  text: '#2D1B10',
-  muted: '#8B5E3C',
-  border: 'rgba(88,56,32,0.15)',
+  // Core brand
+  primary: '#000f22',              // deep navy
+  secondary: '#775a19',            // amber/gold
+  // Surfaces
+  bg: '#f8f9ff',                   // page background
+  surface: '#ffffff',              // white card
+  surfaceLow: '#eff4ff',           // subtle blue tint
+  surfaceContainer: '#e5eeff',     // container
+  surfaceHigh: '#dce9ff',          // high-emphasis container
+  // Text
+  text: '#0b1c30',                 // primary text
+  muted: '#43474d',                // secondary text
+  // Borders
+  border: '#c4c6ce',               // standard border
+  // Semantic
+  white: '#ffffff',
+  secondaryContainer: '#fed488',   // gold highlight bg
+  primaryFixed: '#d2e4ff',         // light blue accent bg
+  error: '#ba1a1a',
+  errorContainer: '#ffdad6',
+  // Aliases kept for legacy inner-page code
+  dark: '#000f22',
+  vdark: '#000f22',
+  gold: '#775a19',
+  light: '#f8f9ff',
 };
 
 export const CLASSES = {
@@ -23,6 +38,6 @@ export const SCHOOL_TYPES = ['Nursery', 'Primary', 'Secondary'];
 
 export const STATUS_COLORS = {
   admitted: { bg: 'rgba(22,163,74,0.1)', color: '#15803D', label: 'Admitted' },
-  pending: { bg: 'rgba(217,119,6,0.1)', color: '#B45309', label: 'Pending' },
-  not_admitted: { bg: 'rgba(220,38,38,0.1)', color: '#DC2626', label: 'Not Admitted' },
+  pending: { bg: 'rgba(119,90,25,0.1)', color: '#775a19', label: 'Pending' },
+  not_admitted: { bg: 'rgba(186,26,26,0.1)', color: '#ba1a1a', label: 'Not Admitted' },
 };

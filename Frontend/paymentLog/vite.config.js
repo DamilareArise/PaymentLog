@@ -7,6 +7,10 @@ export default defineConfig({
     proxy: {
       '/auth': 'http://localhost:3000',
       '/pay': 'http://localhost:3000',
+      '/students': 'http://localhost:3000',
+      '/staff': 'http://localhost:3000',
+      '/subjects': 'http://localhost:3000',
+      '/dashboard': 'http://localhost:3000',
     },
   },
 });

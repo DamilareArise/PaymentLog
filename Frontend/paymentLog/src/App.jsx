@@ -7,6 +7,14 @@ import StudentLogin from "./pages/StudentLogin";
 import StaffLogin from "./pages/StaffLogin";
 import AdmissionForm from "./pages/AdmissionForm";
 
+// Student portal
+import StudentPortal from "./pages/student/StudentPortal";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentProfile from "./pages/student/StudentProfile";
+import StudentSubjects from "./pages/student/StudentSubjects";
+import StudentCBT from "./pages/student/StudentCBT";
+import StudentResults from "./pages/student/StudentResults";
+
 // Staff portal
 import StaffPortal from "./pages/staff/StaffPortal";
 import StaffDashboard from "./pages/staff/StaffDashboard";
@@ -20,9 +28,9 @@ import PaymentsTab from "./pages/staff/PaymentsTab";
 import PaymentInvoice from "./components/PaymentHome";
 import DetailedInvoice from "./components/DetailedInvoice";
 
-function ProtectedRoute({ children, allowedRoles }) {
+function ProtectedRoute({ children, allowedRoles, loginPath = "/staff-login" }) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/staff-login" replace />;
+  if (!user) return <Navigate to={loginPath} replace />;
   if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }
@@ -62,18 +70,19 @@ function App() {
         } />
       </Route>
 
-      {/* Student portal — placeholder until Module 3 */}
-      <Route path="/student/*" element={
-        <ProtectedRoute allowedRoles={['student']}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'system-ui', background: '#FDF6EC' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎓</div>
-              <h1 style={{ color: '#583820', marginBottom: '8px' }}>Student Dashboard</h1>
-              <p style={{ color: '#8B5E3C' }}>Coming in Module 3!</p>
-            </div>
-          </div>
+      {/* Student portal */}
+      <Route path="/student" element={
+        <ProtectedRoute allowedRoles={['student']} loginPath="/student-login">
+          <StudentPortal />
         </ProtectedRoute>
-      } />
+      }>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<StudentDashboard />} />
+        <Route path="profile" element={<StudentProfile />} />
+        <Route path="subjects" element={<StudentSubjects />} />
+        <Route path="exams" element={<StudentCBT />} />
+        <Route path="results" element={<StudentResults />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

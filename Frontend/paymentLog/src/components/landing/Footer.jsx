@@ -1,112 +1,110 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const C = { primary: '#583820', dark: '#2D1B10', gold: '#D4A853', white: '#FFFFFF' };
+const scrollTo = (id) => {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+};
 
 export default function Footer() {
   const navigate = useNavigate();
-
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const year = new Date().getFullYear();
 
   return (
-    <footer style={{ background: C.dark, color: C.white, padding: '60px 24px 0' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', paddingBottom: '48px' }}>
+    <footer className="bg-surface-container-lowest py-16 border-t border-outline-variant/20">
+      <div className="max-w-[1280px] mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-gutter">
 
-          {/* Brand */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <div style={{
-                width: '40px', height: '40px', borderRadius: '50%', background: C.gold,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: '800', fontSize: '13px', color: C.dark
-              }}>OOS</div>
-              <div>
-                <div style={{ fontWeight: '700', fontSize: '15px' }}>Ore Ofe Oluwa</div>
-                <div style={{ color: C.gold, fontSize: '12px' }}>Schools</div>
-              </div>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.7', marginBottom: '20px' }}>
-              Nurturing excellence and building future leaders through quality education and moral values since 1999.
-            </p>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-              <div>📞 +234 800 000 0000</div>
-              <div style={{ marginTop: '6px' }}>✉️ info@orofoluwa.edu.ng</div>
-            </div>
+        {/* Brand */}
+        <div className="md:col-span-1 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-2xl">school</span>
+            <span className="font-serif text-xl font-semibold text-on-surface">Ore Ofe Oluwa Schools</span>
           </div>
+          <p className="font-serif text-base text-on-surface-variant leading-relaxed">
+            Cultivating the minds that will shape the future of our nation and community.
+          </p>
+          <p className="font-sans text-xs text-primary tracking-widest uppercase mt-2">
+            Excellence · Integrity · Grace
+          </p>
+        </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 style={{ color: C.gold, fontWeight: '700', marginBottom: '16px', fontSize: '14px', letterSpacing: '0.5px' }}>
-              QUICK LINKS
-            </h4>
-            {['hero', 'about', 'programs', 'admissions', 'testimonials', 'contact'].map(id => (
-              <button key={id} onClick={() => scrollTo(id)} style={{
-                display: 'block', background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)',
-                cursor: 'pointer', padding: '5px 0', fontSize: '14px', textAlign: 'left',
-                textTransform: 'capitalize', transition: 'color 0.2s'
-              }}
-                onMouseEnter={e => e.target.style.color = C.gold}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
-              >{id === 'hero' ? 'Home' : id.charAt(0).toUpperCase() + id.slice(1)}</button>
-            ))}
-          </div>
-
-          {/* Portals */}
-          <div>
-            <h4 style={{ color: C.gold, fontWeight: '700', marginBottom: '16px', fontSize: '14px', letterSpacing: '0.5px' }}>
-              PORTALS
-            </h4>
+        {/* Quick Links */}
+        <div className="space-y-4">
+          <h4 className="font-sans font-semibold text-sm tracking-widest text-primary uppercase">Quick Links</h4>
+          <ul className="space-y-2">
             {[
-              { label: 'Student Portal', path: '/student-login' },
-              { label: 'Staff Portal', path: '/staff-login' },
-            ].map(({ label, path }) => (
-              <button key={label} onClick={() => navigate(path)} style={{
-                display: 'block', background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)',
-                cursor: 'pointer', padding: '5px 0', fontSize: '14px', textAlign: 'left', transition: 'color 0.2s'
-              }}
-                onMouseEnter={e => e.target.style.color = C.gold}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
-              >{label}</button>
+              { label: 'Home', action: () => scrollTo('hero') },
+              { label: 'About', action: () => scrollTo('story') },
+              { label: 'Programs', action: () => scrollTo('programs') },
+              { label: 'Admissions', action: () => scrollTo('admissions') },
+              { label: 'Contact', action: () => scrollTo('contact') },
+            ].map(({ label, action }) => (
+              <li key={label}>
+                <button onClick={action} className="text-on-surface-variant font-sans text-xs hover:text-primary underline transition-all bg-transparent border-none cursor-pointer p-0 tracking-wide">
+                  {label}
+                </button>
+              </li>
             ))}
+          </ul>
+        </div>
 
-            <h4 style={{ color: C.gold, fontWeight: '700', margin: '24px 0 16px', fontSize: '14px', letterSpacing: '0.5px' }}>
-              PROGRAMS
-            </h4>
-            {['Nursery School', 'Primary School', 'Secondary School'].map(p => (
-              <div key={p} style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', padding: '5px 0' }}>{p}</div>
+        {/* Portals */}
+        <div className="space-y-4">
+          <h4 className="font-sans font-semibold text-sm tracking-widest text-primary uppercase">Portals</h4>
+          <ul className="space-y-2">
+            <li>
+              <Link to="/student-login" className="text-on-surface-variant font-sans text-xs hover:text-primary underline transition-all no-underline tracking-wide">
+                Student Portal
+              </Link>
+            </li>
+            <li>
+              <Link to="/staff-login" className="text-on-surface-variant font-sans text-xs hover:text-primary underline transition-all no-underline tracking-wide">
+                Staff Portal
+              </Link>
+            </li>
+            <li>
+              <Link to="/apply" className="text-on-surface-variant font-sans text-xs hover:text-primary underline transition-all no-underline tracking-wide">
+                Apply Online
+              </Link>
+            </li>
+          </ul>
+          <h4 className="font-sans font-semibold text-sm tracking-widest text-primary uppercase pt-4">Governance</h4>
+          <ul className="space-y-2">
+            {['Privacy Policy', 'Terms of Admission', 'Staff Recruitment'].map(item => (
+              <li key={item}>
+                <span className="text-on-surface-variant font-sans text-xs tracking-wide cursor-default">{item}</span>
+              </li>
             ))}
-          </div>
+          </ul>
+        </div>
 
-          {/* School Hours */}
-          <div>
-            <h4 style={{ color: C.gold, fontWeight: '700', marginBottom: '16px', fontSize: '14px', letterSpacing: '0.5px' }}>
-              SCHOOL HOURS
-            </h4>
-            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', lineHeight: '1.8' }}>
-              <div><span style={{ color: C.white }}>Monday – Friday</span><br />7:30am – 3:30pm</div>
-              <div style={{ marginTop: '12px' }}><span style={{ color: C.white }}>Saturday</span><br />9:00am – 12:00pm (Admin)</div>
-              <div style={{ marginTop: '12px' }}><span style={{ color: C.white }}>Sunday</span><br />Closed</div>
+        {/* Contact */}
+        <div className="space-y-4">
+          <h4 className="font-sans font-semibold text-sm tracking-widest text-primary uppercase">Contact</h4>
+          <div className="space-y-3 text-on-surface-variant font-sans text-xs leading-relaxed">
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-primary text-base flex-shrink-0 mt-0.5">location_on</span>
+              <span>Abebi Area Gbongan,<br />Osun State, Nigeria</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-primary text-base flex-shrink-0 mt-0.5">call</span>
+              <span>09066099573<br />07030965465</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-primary text-base flex-shrink-0 mt-0.5">mail</span>
+              <span>admissions@oreofeoluwa.edu.ng</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Bottom Bar */}
-        <div style={{
-          borderTop: '1px solid rgba(255,255,255,0.08)', padding: '20px 0',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px'
-        }}>
-          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px' }}>
-            © {year} Ore Ofe Oluwa Schools. All rights reserved.
-          </span>
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px' }}>
-            Excellence · Integrity · Faith
-          </span>
-        </div>
+      {/* Copyright bar */}
+      <div className="max-w-[1280px] mx-auto px-margin-desktop mt-16 pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-2">
+        <p className="font-serif text-base text-on-surface-variant text-sm">
+          © {year} Ore Ofe Oluwa Schools. All rights reserved.
+        </p>
+        <p className="font-sans text-xs text-on-surface-variant/50 tracking-widest uppercase">
+          Gbongan, Osun State, Nigeria
+        </p>
       </div>
     </footer>
   );

@@ -91,4 +91,15 @@ const submitApplication = async (req, res) => {
   }
 };
 
-module.exports = { getAllStudents, getStudent, createStudent, updateStudent, deleteStudent, updateAdmissionStatus, submitApplication };
+// Student: get own profile
+const getMyProfile = async (req, res) => {
+  try {
+    const student = await Student.findById(req.user.referenceId).lean();
+    if (!student) return res.status(404).json({ status: 'error', message: 'Student profile not found.' });
+    res.json({ status: 'success', data: student });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+};
+
+module.exports = { getAllStudents, getStudent, createStudent, updateStudent, deleteStudent, updateAdmissionStatus, submitApplication, getMyProfile };

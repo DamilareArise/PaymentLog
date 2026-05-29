@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getAllStudents, getStudent, createStudent, updateStudent, deleteStudent, updateAdmissionStatus, submitApplication } = require('../controllers/student.controller');
+const { getAllStudents, getStudent, createStudent, updateStudent, deleteStudent, updateAdmissionStatus, submitApplication, getMyProfile } = require('../controllers/student.controller');
 const { verifyToken, requireRole } = require('../middleware/auth.middleware');
 
 // Public: submit application
@@ -7,6 +7,7 @@ router.post('/apply', submitApplication);
 
 // Protected
 router.use(verifyToken);
+router.get('/me', getMyProfile);
 router.get('/', getAllStudents);
 router.get('/:id', getStudent);
 router.post('/', requireRole('admin', 'teacher'), createStudent);

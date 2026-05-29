@@ -1,122 +1,87 @@
-const C = { primary: '#583820', dark: '#3D2714', gold: '#D4A853', light: '#FDF6EC', white: '#FFFFFF', text: '#2D1B10' };
-
-const programs = [
-  {
-    icon: '🌸',
-    level: 'Nursery',
-    subtitle: 'Ages 2 – 5',
-    color: '#E8D5C4',
-    accentColor: '#9B6B47',
-    description: 'A warm, play-based environment that lays the foundation for lifelong learning through exploration, creativity, and social skills.',
-    classes: ['Creche', 'Nursery 1', 'Nursery 2', 'Nursery 3'],
-    highlights: ['Phonics & Literacy', 'Basic Numeracy', 'Arts & Crafts', 'Social Development', 'Music & Movement'],
-  },
-  {
-    icon: '📖',
-    level: 'Primary',
-    subtitle: 'Ages 6 – 11',
-    color: '#D4A853',
-    accentColor: C.primary,
-    description: 'Building core academic competencies in Literacy, Mathematics, Science, and Social Studies with hands-on learning experiences.',
-    classes: ['Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6'],
-    highlights: ['Core Subjects', 'Computer Studies', 'Physical Education', 'Cultural Studies', 'FIRST Leaving Exams'],
-    featured: true,
-  },
-  {
-    icon: '🎓',
-    level: 'Secondary',
-    subtitle: 'Ages 12 – 17',
-    color: '#583820',
-    accentColor: C.dark,
-    description: 'Comprehensive JSS and SSS education preparing students for national examinations and higher institutions with dedicated subject specialists.',
-    classes: ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'],
-    highlights: ['BECE & WAEC Prep', 'Science & Arts', 'ICT Labs', 'Career Guidance', 'Extracurriculars'],
-  },
-];
-
 export default function ProgramsSection() {
   return (
-    <section id="programs" style={{ background: C.light, padding: '100px 24px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <section className="py-24 bg-surface-container-low" id="programs">
+      <div className="max-w-[1280px] mx-auto px-margin-desktop">
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '70px' }}>
-          <div style={{
-            display: 'inline-block', background: `rgba(88,56,32,0.1)`, borderRadius: '50px',
-            padding: '5px 18px', marginBottom: '16px'
-          }}>
-            <span style={{ color: C.primary, fontSize: '13px', fontWeight: '700', letterSpacing: '1.5px' }}>
-              OUR PROGRAMS
-            </span>
-          </div>
-          <h2 style={{ color: C.text, fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: '800', marginBottom: '16px', lineHeight: '1.2' }}>
-            Three Levels of <span style={{ color: C.primary }}>Quality Education</span>
-          </h2>
-          <p style={{ color: '#6B4226', fontSize: '17px', lineHeight: '1.7', maxWidth: '560px', margin: '0 auto' }}>
-            From the earliest years through secondary school, we provide a seamless, high-quality educational journey.
-          </p>
+        <div className="text-center mb-16">
+          <h2 className="font-serif text-[32px] leading-10 font-semibold text-on-surface">Academic Programs</h2>
+          <p className="font-sans font-semibold text-sm tracking-widest text-primary mt-2 uppercase">A Legacy of Learning</p>
         </div>
 
-        {/* Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '28px', alignItems: 'start' }}>
-          {programs.map(({ icon, level, subtitle, color, accentColor, description, classes, highlights, featured }) => (
-            <div key={level} style={{
-              background: C.white, borderRadius: '20px', overflow: 'hidden',
-              boxShadow: featured ? `0 20px 60px rgba(88,56,32,0.2)` : '0 4px 24px rgba(88,56,32,0.08)',
-              transform: featured ? 'scale(1.03)' : 'none',
-              border: featured ? `2px solid ${C.gold}` : '1px solid rgba(88,56,32,0.08)',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              position: 'relative'
-            }}
-              onMouseEnter={e => { if (!featured) { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 16px 48px rgba(88,56,32,0.15)'; }}}
-              onMouseLeave={e => { if (!featured) { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(88,56,32,0.08)'; }}}
-            >
-              {featured && (
-                <div style={{
-                  position: 'absolute', top: '16px', right: '16px', background: C.gold,
-                  color: C.dark, fontSize: '11px', fontWeight: '700', padding: '4px 10px',
-                  borderRadius: '50px', letterSpacing: '0.5px'
-                }}>MOST POPULAR</div>
-              )}
+        {/* Bento Grid */}
+        <div className="grid md:grid-cols-12 gap-gutter" style={{ minHeight: '600px' }}>
 
-              {/* Header */}
-              <div style={{ background: level === 'Secondary' ? C.dark : level === 'Primary' ? C.primary : '#9B6B47', padding: '36px 28px 28px' }}>
-                <div style={{ fontSize: '44px', marginBottom: '12px' }}>{icon}</div>
-                <h3 style={{ color: C.white, fontSize: '26px', fontWeight: '800', margin: 0 }}>{level} School</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)', margin: '6px 0 0', fontSize: '14px' }}>{subtitle}</p>
+          {/* Nursery — 4 cols */}
+          <div className="md:col-span-4 bg-surface-container p-8 border border-outline-variant/30 flex flex-col justify-between hover:border-primary/40 transition-colors duration-300 group">
+            <div className="space-y-4">
+              <span className="material-symbols-outlined text-primary text-5xl">child_care</span>
+              <h3 className="font-serif text-2xl font-semibold text-on-surface">Nursery School</h3>
+              <p className="text-on-surface-variant font-serif text-base leading-relaxed">
+                Early childhood development focused on curiosity, motor skills, and foundational literacy in a warm, nurturing environment.
+              </p>
+              <div className="pt-2">
+                {['Creche', 'Nursery 1', 'Nursery 2', 'Nursery 3'].map(c => (
+                  <span key={c} className="inline-block mr-2 mb-2 text-xs font-sans tracking-wide text-on-surface-variant border border-outline-variant/40 px-2 py-1">{c}</span>
+                ))}
               </div>
+            </div>
+            <a href="#admissions" onClick={e => { e.preventDefault(); document.getElementById('admissions')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="font-sans font-semibold text-sm tracking-widest text-primary flex items-center gap-2 no-underline group mt-8 uppercase"
+            >
+              Enrol Now
+              <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </a>
+          </div>
 
-              {/* Body */}
-              <div style={{ padding: '28px' }}>
-                <p style={{ color: '#5A3D28', lineHeight: '1.7', fontSize: '14px', marginBottom: '24px' }}>{description}</p>
+          {/* Primary — 8 cols with image */}
+          <div className="md:col-span-8 relative group overflow-hidden" style={{ minHeight: '360px' }}>
+            <img
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD2a84L7gCaWGs9zM1P49OtUSCsBohpv_4ghq4MzPg0qZTrfqDEcl3KyIflkiO3uDfAejpVkq9CNGt9qe5-8pS_N0zHH5T_VFpXjNLr8MV2Pw_DFZlwAmLCOxEyRMD-ZwonmTR3ZlbitEApEGWBFEHm5rpDX4LCiuowoGYXFgnIQD1qN7w9ouj6HEpI0f1R6nnW_SYe-XY2t8tnAW-pb_IznoiS3nnQ6xb4eWPYlVLr6Sw9eRrFgb-qdTTbaGHUfLPf4d9lrvbN-A"
+              alt="Primary School"
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+            <div className="absolute inset-0 bg-surface-container-high" style={{ zIndex: 0 }} />
+            <div className="absolute inset-0 flex flex-col justify-end p-12" style={{ background: 'linear-gradient(to top, rgba(91,65,50,0.88) 40%, rgba(91,65,50,0.25))', zIndex: 1 }}>
+              <h3 className="font-serif text-[32px] leading-10 font-semibold text-on-surface mb-4">Primary Education</h3>
+              <p className="text-on-surface/80 font-serif text-base max-w-lg mb-6 leading-relaxed">
+                Building robust academic foundations in mathematics, sciences, and humanities with a focus on critical thinking.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {['Primary 1–3', 'Primary 4–6', 'BECE Prep'].map(c => (
+                  <span key={c} className="text-xs font-sans tracking-wide text-primary border border-primary/30 px-2 py-1">{c}</span>
+                ))}
+              </div>
+              <a href="#admissions" onClick={e => { e.preventDefault(); document.getElementById('admissions')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="bg-primary text-on-primary w-fit px-8 py-3 font-sans font-semibold text-sm tracking-widest uppercase no-underline hover:brightness-110 transition-all"
+              >Enrol Now</a>
+            </div>
+          </div>
 
-                {/* Classes */}
-                <div style={{ marginBottom: '20px' }}>
-                  <h4 style={{ color: C.text, fontWeight: '700', marginBottom: '10px', fontSize: '14px' }}>Classes</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {classes.map(cls => (
-                      <span key={cls} style={{
-                        background: C.light, color: C.primary, padding: '4px 10px',
-                        borderRadius: '50px', fontSize: '12px', fontWeight: '600',
-                        border: '1px solid rgba(88,56,32,0.15)'
-                      }}>{cls}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Highlights */}
-                <div>
-                  <h4 style={{ color: C.text, fontWeight: '700', marginBottom: '10px', fontSize: '14px' }}>Highlights</h4>
-                  {highlights.map(h => (
-                    <div key={h} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                      <span style={{ color: C.gold, fontSize: '14px' }}>✓</span>
-                      <span style={{ color: '#5A3D28', fontSize: '13px' }}>{h}</span>
-                    </div>
+          {/* Secondary — full width */}
+          <div className="md:col-span-12 bg-surface-container-high p-8 border border-outline-variant/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-primary/40 transition-colors duration-300 group">
+            <div className="flex items-center gap-8">
+              <span className="material-symbols-outlined text-primary text-5xl flex-shrink-0">biotech</span>
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-on-surface mb-2">Secondary School</h3>
+                <p className="text-on-surface-variant font-serif text-base leading-relaxed max-w-2xl">
+                  Advanced preparatory programs across JSS and SSS for university entrance, research, and technical specialization. WAEC and NECO examination focused.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {['JSS 1–3', 'SS 1–3', 'Science Track', 'Arts Track', 'WAEC/NECO Prep'].map(c => (
+                    <span key={c} className="text-xs font-sans tracking-wide text-on-surface-variant border border-outline-variant/40 px-2 py-1">{c}</span>
                   ))}
                 </div>
               </div>
             </div>
-          ))}
+            <a href="#admissions" onClick={e => { e.preventDefault(); document.getElementById('admissions')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="font-sans font-semibold text-sm tracking-widest text-primary flex items-center gap-2 no-underline group whitespace-nowrap uppercase flex-shrink-0"
+            >
+              Enrol Now
+              <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
