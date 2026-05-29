@@ -37,10 +37,15 @@ const Modal = ({ title, onClose, children }) => (
 function ActionMenu({ items }) {
   const [pos, setPos] = useState(null);
   const btnRef = useRef(null);
+  const dropRef = useRef(null);
 
   useEffect(() => {
     if (!pos) return;
-    const handler = (e) => { if (btnRef.current && !btnRef.current.contains(e.target)) setPos(null); };
+    const handler = (e) => {
+      if (btnRef.current?.contains(e.target)) return;
+      if (dropRef.current?.contains(e.target)) return;
+      setPos(null);
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [pos]);
@@ -68,7 +73,7 @@ function ActionMenu({ items }) {
         <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>more_vert</span>
       </button>
       {pos && (
-        <div style={{
+        <div ref={dropRef} style={{
           position: 'fixed', top: pos.top, right: pos.right,
           background: '#fff', border: `1px solid ${C.border}`, borderRadius: '8px',
           boxShadow: '0 8px 24px rgba(0,15,34,0.12)', zIndex: 999,
