@@ -1,6 +1,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { C, STATUS_COLORS } from '../../utils/constants';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const ff = 'Inter, system-ui, sans-serif';
 
@@ -54,6 +55,7 @@ function QuickAction({ icon, label, to, iconBg, iconColor, navigate: nav }) {
 export default function StudentDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const profile = user?.profile;
   const statusInfo = STATUS_COLORS[profile?.admissionStatus] || STATUS_COLORS.pending;
 
@@ -70,7 +72,7 @@ export default function StudentDashboard() {
       {/* Welcome banner */}
       <div style={{
         background: `linear-gradient(135deg, #000f22 0%, #001d3d 55%, #003566 100%)`,
-        borderRadius: '12px', padding: '32px 36px', marginBottom: '28px',
+        borderRadius: '12px', padding: isMobile ? '20px' : '32px 36px', marginBottom: isMobile ? '20px' : '28px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: '16px', position: 'relative', overflow: 'hidden',
       }}>
@@ -90,7 +92,7 @@ export default function StudentDashboard() {
           <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '13px', marginBottom: '6px', fontWeight: '500' }}>
             {greeting()},
           </div>
-          <h2 style={{ color: '#ffffff', fontSize: '26px', fontWeight: '700', margin: '0 0 8px', letterSpacing: '-0.01em' }}>
+          <h2 style={{ color: '#ffffff', fontSize: isMobile ? '20px' : '26px', fontWeight: '700', margin: '0 0 8px', letterSpacing: '-0.01em' }}>
             {profile?.fullName || 'Student'}
           </h2>
           <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
@@ -151,7 +153,7 @@ export default function StudentDashboard() {
       )}
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(210px, 1fr))', gap: isMobile ? '12px' : '16px', marginBottom: isMobile ? '20px' : '28px' }}>
         <StatCard icon="badge" label="Admission No." value={profile?.admissionNumber}
           iconBg="rgba(0,15,34,0.08)" iconColor={C.primary} />
         <StatCard icon="class" label="Current Class" value={profile?.class}
@@ -165,14 +167,14 @@ export default function StudentDashboard() {
       {/* Quick Actions */}
       <div style={{
         background: C.white, border: `1px solid ${C.border}`, borderRadius: '10px',
-        padding: '24px', marginBottom: '24px',
+        padding: isMobile ? '16px' : '24px', marginBottom: isMobile ? '16px' : '24px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <h3 style={{ color: C.text, fontSize: '14px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em' }}>
             Quick Actions
           </h3>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '12px' }}>
           <QuickAction icon="person" label="View Profile" to="/student/profile" navigate={navigate}
             iconBg="rgba(0,15,34,0.08)" iconColor={C.primary} />
           <QuickAction icon="menu_book" label="My Subjects" to="/student/subjects" navigate={navigate}

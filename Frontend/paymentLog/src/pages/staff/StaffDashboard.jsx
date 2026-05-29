@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { C, STATUS_COLORS } from '../../utils/constants';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 const ff = 'Inter, system-ui, sans-serif';
 
@@ -86,6 +87,7 @@ export default function StaffDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     api.get('/dashboard/stats')
@@ -107,7 +109,7 @@ export default function StaffDashboard() {
     <div style={{ maxWidth: '1200px', fontFamily: ff }}>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '20px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(210px, 1fr))', gap: isMobile ? '12px' : '20px', marginBottom: isMobile ? '20px' : '28px' }}>
         <StatCard icon="group" label="Total Students" value={stats?.totalStudents?.toLocaleString()} sub="Admitted students" subColor="#16a34a" onClick={() => navigate('/staff/students')} />
         <StatCard icon="badge" label="Active Staff" value={stats?.totalStaff} sub="Full faculty" subColor={C.muted} onClick={() => navigate('/staff/staff-mgmt')} />
         <StatCard icon="person_add" label="Pending Admissions" value={stats?.pendingAdmissions}
@@ -119,7 +121,7 @@ export default function StaffDashboard() {
       </div>
 
       {/* Main bento grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: isMobile ? '16px' : '24px', marginBottom: isMobile ? '16px' : '24px' }}>
 
         {/* Left: Chart + Recent students */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -133,7 +135,7 @@ export default function StaffDashboard() {
                 padding: '4px 12px', fontSize: '12px', color: C.muted, fontWeight: '500',
               }}>Academic Year {new Date().getFullYear()}/{new Date().getFullYear() + 1}</span>
             </div>
-            <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', padding: '0 8px' }}>
+            <div style={{ height: isMobile ? '160px' : '200px', display: 'flex', alignItems: 'flex-end', gap: isMobile ? '6px' : '12px', padding: '0 8px' }}>
               {CHART_DATA.map(({ month, pct }) => (
                 <div key={month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                   <div style={{

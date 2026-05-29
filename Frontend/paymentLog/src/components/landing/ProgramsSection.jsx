@@ -40,17 +40,17 @@ export default function ProgramsSection() {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD2a84L7gCaWGs9zM1P49OtUSCsBohpv_4ghq4MzPg0qZTrfqDEcl3KyIflkiO3uDfAejpVkq9CNGt9qe5-8pS_N0zHH5T_VFpXjNLr8MV2Pw_DFZlwAmLCOxEyRMD-ZwonmTR3ZlbitEApEGWBFEHm5rpDX4LCiuowoGYXFgnIQD1qN7w9ouj6HEpI0f1R6nnW_SYe-XY2t8tnAW-pb_IznoiS3nnQ6xb4eWPYlVLr6Sw9eRrFgb-qdTTbaGHUfLPf4d9lrvbN-A"
               alt="Primary School"
+              style={{ zIndex: 0 }}
               onError={e => { e.target.style.display = 'none'; }}
             />
-            <div className="absolute inset-0 bg-surface-container-high" style={{ zIndex: 0 }} />
-            <div className="absolute inset-0 flex flex-col justify-end p-12" style={{ background: 'linear-gradient(to top, rgba(91,65,50,0.88) 40%, rgba(91,65,50,0.25))', zIndex: 1 }}>
-              <h3 className="font-serif text-[32px] leading-10 font-semibold text-on-surface mb-4">Primary Education</h3>
-              <p className="text-on-surface/80 font-serif text-base max-w-lg mb-6 leading-relaxed">
+            <div className="absolute inset-0 flex flex-col justify-end p-12" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.15) 100%)', zIndex: 1 }}>
+              <h3 className="font-serif text-[32px] leading-10 font-semibold mb-4" style={{ color: '#D4A853' }}>Primary Education</h3>
+              <p className="font-serif text-base max-w-lg mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.8)' }}>
                 Building robust academic foundations in mathematics, sciences, and humanities with a focus on critical thinking.
               </p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {['Primary 1–3', 'Primary 4–6', 'BECE Prep'].map(c => (
-                  <span key={c} className="text-xs font-sans tracking-wide text-primary border border-primary/30 px-2 py-1">{c}</span>
+                  <span key={c} className="text-xs font-sans tracking-wide" style={{ color: '#D4A853', border: '1px solid rgba(212,168,83,0.4)', padding: '2px 8px' }}>{c}</span>
                 ))}
               </div>
               <a href="#admissions" onClick={e => { e.preventDefault(); document.getElementById('admissions')?.scrollIntoView({ behavior: 'smooth' }); }}

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { C } from '../../utils/constants';
@@ -19,31 +20,49 @@ const itemBase = {
   transition: 'all 0.15s', fontFamily: ff,
 };
 
-export default function StudentSidebar() {
+const statusColors = {
+  admitted: { bg: 'rgba(22,163,74,0.1)', color: '#15803D', label: 'Admitted' },
+  pending: { bg: 'rgba(119,90,25,0.1)', color: '#775a19', label: 'Pending Review' },
+  not_admitted: { bg: 'rgba(186,26,26,0.1)', color: '#ba1a1a', label: 'Not Admitted' },
+};
+
+export default function StudentSidebar({ isOpen, isMobile, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const profile = user?.profile;
-  const handleLogout = () => { logout(); navigate('/student-login'); };
-
-  const statusColors = {
-    admitted: { bg: 'rgba(22,163,74,0.1)', color: '#15803D', label: 'Admitted' },
-    pending: { bg: 'rgba(119,90,25,0.1)', color: '#775a19', label: 'Pending Review' },
-    not_admitted: { bg: 'rgba(186,26,26,0.1)', color: '#ba1a1a', label: 'Not Admitted' },
-  };
   const st = statusColors[profile?.admissionStatus] || statusColors.pending;
+  const handleLogout = () => { logout(); navigate('/student-login'); };
 
   return (
     <aside style={{
       position: 'fixed', left: 0, top: 0, height: '100vh', width: '280px',
       background: C.white, borderRight: `1px solid ${C.border}`,
-      display: 'flex', flexDirection: 'column', paddingTop: '24px', zIndex: 40,
+      display: 'flex', flexDirection: 'column', paddingTop: '24px',
+      zIndex: isMobile ? 50 : 40,
+      transform: !isOpen ? 'translateX(-100%)' : 'none',
+      transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      willChange: 'transform',
     }}>
-      {/* Brand */}
-      <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${C.border}` }}>
-        <h1 style={{ color: C.primary, fontSize: '18px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em', fontFamily: ff }}>
-          ORE OFE OLUWA
-        </h1>
-        <p style={{ color: C.muted, fontSize: '13px', margin: '2px 0 0', fontFamily: ff }}>Student Portal</p>
+
+      {/* Brand + close button on mobile */}
+      <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ color: C.primary, fontSize: '18px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em', fontFamily: ff }}>
+            ORE OFE OLUWA
+          </h1>
+          <p style={{ color: C.muted, fontSize: '13px', margin: '2px 0 0', fontFamily: ff }}>Student Portal</p>
+        </div>
+        {isMobile && (
+          <button
+            onClick={onClose}
+            style={{
+              background: C.surfaceLow, border: 'none', borderRadius: '8px',
+              cursor: 'pointer', color: C.muted, display: 'flex', padding: '6px',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>close</span>
+          </button>
+        )}
       </div>
 
       {/* Student profile badge */}
@@ -114,3 +133,9 @@ export default function StudentSidebar() {
     </aside>
   );
 }
+
+StudentSidebar.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

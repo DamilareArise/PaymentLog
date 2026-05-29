@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { C } from '../../utils/constants';
@@ -19,7 +20,7 @@ const itemBase = {
   transition: 'all 0.15s', cursor: 'pointer', fontFamily: 'Inter, system-ui, sans-serif',
 };
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, isMobile, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const handleLogout = () => { logout(); navigate('/'); };
@@ -28,14 +29,33 @@ export default function Sidebar() {
     <aside style={{
       position: 'fixed', left: 0, top: 0, height: '100vh', width: '280px',
       background: C.white, borderRight: `1px solid ${C.border}`,
-      display: 'flex', flexDirection: 'column', paddingTop: '24px', zIndex: 40,
+      display: 'flex', flexDirection: 'column', paddingTop: '24px',
+      zIndex: isMobile ? 50 : 40,
+      // Slide in/out on mobile
+      transform: !isOpen ? 'translateX(-100%)' : 'none',
+      transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      willChange: 'transform',
     }}>
-      {/* Brand */}
-      <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${C.border}` }}>
-        <h1 style={{ color: C.primary, fontSize: '18px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em', fontFamily: 'Inter, sans-serif' }}>
-          ORE OFE OLUWA
-        </h1>
-        <p style={{ color: C.muted, fontSize: '13px', margin: '2px 0 0', fontFamily: 'Inter, sans-serif' }}>Staff Portal</p>
+
+      {/* Brand + optional close button on mobile */}
+      <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ color: C.primary, fontSize: '18px', fontWeight: '700', margin: 0, letterSpacing: '-0.01em', fontFamily: 'Inter, sans-serif' }}>
+            ORE OFE OLUWA
+          </h1>
+          <p style={{ color: C.muted, fontSize: '13px', margin: '2px 0 0', fontFamily: 'Inter, sans-serif' }}>Staff Portal</p>
+        </div>
+        {isMobile && (
+          <button
+            onClick={onClose}
+            style={{
+              background: C.surfaceLow, border: 'none', borderRadius: '8px',
+              cursor: 'pointer', color: C.muted, display: 'flex', padding: '6px',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>close</span>
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -80,3 +100,9 @@ export default function Sidebar() {
     </aside>
   );
 }
+
+Sidebar.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

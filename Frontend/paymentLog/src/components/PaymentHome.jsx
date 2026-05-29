@@ -166,6 +166,7 @@ function EntryModal({ paymentType, schoolType, onSuccess, onClose }) {
   const [studentId, setStudentId] = useState(null);
   const [studentClass, setStudentClass] = useState('');
   const [purpose, setPurpose] = useState('');
+  const [customPurpose, setCustomPurpose] = useState('');
   const [amount, setAmount] = useState('');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
@@ -179,11 +180,12 @@ function EntryModal({ paymentType, schoolType, onSuccess, onClose }) {
     setSaving(true);
     try {
       const endpoint = isIncome ? '/pay/log-payment' : '/pay/log-expense';
+      const resolvedPurpose = purpose === 'Other' ? customPurpose.trim() : purpose;
       await api.post(endpoint, {
         payer: payerName.trim(),
         amount: Number(amount),
         schoolType,
-        ...(isIncome && { purpose: purpose || '', class: studentClass || '', studentId: studentId || undefined }),
+        ...(isIncome && { purpose: resolvedPurpose || '', class: studentClass || '', studentId: studentId || undefined }),
       });
       onSuccess();
     } catch (ex) {
@@ -260,12 +262,25 @@ function EntryModal({ paymentType, schoolType, onSuccess, onClose }) {
             <LabeledField label="Purpose of Payment">
               <select
                 value={purpose}
-                onChange={(e) => setPurpose(e.target.value)}
+                onChange={(e) => { setPurpose(e.target.value); setCustomPurpose(''); }}
                 style={iStyle}
               >
                 <option value="">Select purpose (optional)…</option>
                 {PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}
+                <option value="Other">Other…</option>
               </select>
+            </LabeledField>
+          )}
+          {isIncome && purpose === 'Other' && (
+            <LabeledField label="Specify Purpose">
+              <input
+                type="text"
+                value={customPurpose}
+                onChange={(e) => setCustomPurpose(e.target.value)}
+                placeholder="Enter custom purpose…"
+                style={iStyle}
+                autoFocus
+              />
             </LabeledField>
           )}
 

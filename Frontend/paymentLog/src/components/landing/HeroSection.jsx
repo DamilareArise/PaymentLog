@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import hero from "../../assets/hero.png"
 
 const scrollTo = (id) => {
   const el = document.getElementById(id);
@@ -11,23 +12,21 @@ export default function HeroSection() {
       {/* Background image */}
       <img
         className="absolute inset-0 w-full h-full object-cover"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuADZWJ0zuLNU4OU_MK22Fr6IwLPqd7A9vpg2d87Q9-c-mXWoLH1XePQpl771gCb4zU3uDpCVR35bXSeuZB8yZwKp4Rwr2JsfX-aHQSrbdiZa_Qar4kWkZQdNzniEgL4K6cVCH8bHi0RcU3xvq9xIW0K1EMSAF2PBqhUKguAlZDMjoNNrcXlZzl394BQ9S7vLd-Ry0ppRUvZaXKGR-bcthkB3jFvq3pnyuHG1tDMtBBZ8K5QT24Pj7F-9QZT--ZefyBF6TfR7MQMwy4"
+        src={hero}
         alt="Ore Ofe Oluwa Schools campus"
-        onError={e => { e.target.style.display = 'none'; }}
+        style={{ zIndex: 0 }}
       />
-      {/* Fallback bg for when image fails */}
-      <div className="absolute inset-0 bg-surface-container-high" style={{ zIndex: 0 }} />
 
       {/* Gradient overlay */}
-      <div className="hero-gradient absolute inset-0" style={{ zIndex: 1 }} />
+      <div className="absolute inset-0" style={{ zIndex: 1, background: 'linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.1) 100%)' }} />
 
       {/* Content */}
       <div className="relative max-w-[1280px] mx-auto px-margin-desktop w-full" style={{ zIndex: 2 }}>
         <div className="max-w-2xl space-y-6">
-          <h1 className="font-serif text-[48px] leading-[56px] tracking-tight font-bold text-secondary">
+          <h1 className="font-serif text-[48px] leading-[56px] tracking-tight font-bold" style={{ color: '#D4A853' }}>
             Excellence in Education
           </h1>
-          <p className="font-serif text-lg leading-7 text-on-surface-variant max-w-xl">
+          <p className="font-serif text-lg leading-7 max-w-xl" style={{ color: 'rgba(255,255,255,0.85)' }}>
             Nurturing intellectual rigor and personal growth across Nursery, Primary, and Secondary levels through a heritage of academic distinction.
           </p>
           <div className="flex gap-4 pt-4 flex-wrap">
@@ -39,7 +38,8 @@ export default function HeroSection() {
             </Link>
             <button
               onClick={() => scrollTo('programs')}
-              className="border border-outline text-on-surface px-8 py-4 font-sans font-semibold text-sm tracking-widest uppercase hover:bg-surface-container transition-all bg-transparent cursor-pointer"
+              className="px-8 py-4 font-sans font-semibold text-sm tracking-widest uppercase transition-all bg-transparent cursor-pointer"
+              style={{ border: '1px solid rgba(255,255,255,0.5)', color: '#ffffff' }}
             >
               Explore Programs
             </button>

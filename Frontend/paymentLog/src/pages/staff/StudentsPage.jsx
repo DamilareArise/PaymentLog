@@ -55,6 +55,8 @@ export default function StudentsPage() {
   const LIMIT = 15;
   const [modal, setModal] = useState(null); // null | { mode:'add'|'edit', student }
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [createAccountModal, setCreateAccountModal] = useState(null);
+  const [accountForm, setAccountForm] = useState({ email: '', password: '' });
   const [toast, setToast] = useState(null);
 
   const showToast = (msg, type = 'success') => {
@@ -99,6 +101,21 @@ export default function StudentsPage() {
       setDeleteTarget(null);
       fetchStudents();
     } catch { showToast('Failed to delete student.', 'error'); }
+  };
+
+  const handleCreateAccount = async () => {
+    try {
+      await api.post('/auth/create-user', {
+        email: accountForm.email,
+        password: accountForm.password,
+        role: 'student',
+        referenceId: createAccountModal._id,
+      });
+      showToast('Login account created successfully.');
+      setCreateAccountModal(null);
+      setAccountForm({ email: '', password: '' });
+      fetchStudents();
+    } catch (e) { showToast(e.response?.data?.message || 'Failed to create account.', 'error'); }
   };
 
   const pages = Math.ceil(total / LIMIT);
@@ -180,8 +197,11 @@ export default function StudentsPage() {
                       <span style={{ background: sc.bg, color: sc.color, padding: '3px 10px', borderRadius: '50px', fontSize: '12px', fontWeight: '600' }}>{sc.label}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         <button onClick={() => setModal({ mode: 'edit', student: s })} style={{ background: `rgba(88,56,32,0.08)`, border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: C.primary, fontSize: '13px', fontWeight: '600' }}>Edit</button>
+                        {!s.userId && (
+                          <button onClick={() => { setCreateAccountModal(s); setAccountForm({ email: s.email || '', password: '' }); }} style={{ background: 'rgba(37,99,235,0.08)', border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#2563EB', fontSize: '13px', fontWeight: '600' }}>Create Login</button>
+                        )}
                         <button onClick={() => setDeleteTarget(s)} style={{ background: 'rgba(220,38,38,0.08)', border: 'none', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#DC2626', fontSize: '13px', fontWeight: '600' }}>Delete</button>
                       </div>
                     </td>
@@ -248,6 +268,31 @@ export default function StudentsPage() {
               <Btn type="submit" disabled={formik.isSubmitting}>{formik.isSubmitting ? 'Saving…' : modal.mode === 'add' ? 'Add Student' : 'Save Changes'}</Btn>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* Create Login Account Modal */}
+      {createAccountModal && (
+        <Modal title={`Create Login — ${createAccountModal.fullName}`} onClose={() => setCreateAccountModal(null)}>
+          <p style={{ color: C.muted, fontSize: '14px', marginBottom: '20px' }}>
+            This creates a login account so the student can access their portal at <strong>/student-login</strong>.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div>
+              <label style={labelStyle}>Email (used to log in)</label>
+              <input type="email" value={accountForm.email} onChange={e => setAccountForm(f => ({ ...f, email: e.target.value }))} style={inputStyle} placeholder="student@example.com" />
+            </div>
+            <div>
+              <label style={labelStyle}>Password</label>
+              <input type="password" value={accountForm.password} onChange={e => setAccountForm(f => ({ ...f, password: e.target.value }))} style={inputStyle} placeholder="Min. 6 characters" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <Btn variant="ghost" onClick={() => setCreateAccountModal(null)}>Cancel</Btn>
+            <button onClick={handleCreateAccount} disabled={!accountForm.email || accountForm.password.length < 6} style={{ background: '#2563EB', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', opacity: (!accountForm.email || accountForm.password.length < 6) ? 0.5 : 1 }}>
+              Create Account
+            </button>
+          </div>
         </Modal>
       )}
 
