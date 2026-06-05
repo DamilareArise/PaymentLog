@@ -20,6 +20,7 @@ export default defineConfig({
       '/staff':     proxyTarget,
       '/subjects':  proxyTarget,
       '/dashboard': proxyTarget,
+      '/cbt':       proxyTarget,
     },
   },
 });

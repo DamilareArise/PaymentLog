@@ -13,6 +13,7 @@ import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentProfile from "./pages/student/StudentProfile";
 import StudentSubjects from "./pages/student/StudentSubjects";
 import StudentCBT from "./pages/student/StudentCBT";
+import ExamTakingPage from "./pages/student/ExamTakingPage";
 import StudentResults from "./pages/student/StudentResults";
 
 // Staff portal
@@ -23,6 +24,7 @@ import StaffMgmtPage from "./pages/staff/StaffMgmtPage";
 import SubjectsPage from "./pages/staff/SubjectsPage";
 import AdmissionsPage from "./pages/staff/AdmissionsPage";
 import PaymentsTab from "./pages/staff/PaymentsTab";
+import CBTPage from "./pages/staff/CBTPage";
 
 // Legacy payment logger (preserved)
 import PaymentInvoice from "./components/PaymentHome";
@@ -61,13 +63,7 @@ function App() {
         <Route path="subjects" element={<SubjectsPage />} />
         <Route path="admissions" element={<AdmissionsPage />} />
         <Route path="payments" element={<PaymentsTab />} />
-        <Route path="cbt" element={
-          <div style={{ textAlign: 'center', padding: '60px 24px' }}>
-            <div style={{ fontSize: '56px', marginBottom: '16px' }}>💻</div>
-            <h2 style={{ color: '#2D1B10', marginBottom: '8px' }}>CBT Module</h2>
-            <p style={{ color: '#8B5E3C' }}>Coming in the next module — exams, questions, auto-grading, and student results.</p>
-          </div>
-        } />
+        <Route path="cbt" element={<CBTPage />} />
       </Route>
 
       {/* Student portal */}
@@ -81,6 +77,7 @@ function App() {
         <Route path="profile" element={<StudentProfile />} />
         <Route path="subjects" element={<StudentSubjects />} />
         <Route path="exams" element={<StudentCBT />} />
+        <Route path="exams/:examId" element={<ExamTakingPage />} />
         <Route path="results" element={<StudentResults />} />
       </Route>
 

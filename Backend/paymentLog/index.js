@@ -7,6 +7,7 @@ const studentRoute = require('./routes/student.route')
 const staffRoute = require('./routes/staff.route')
 const subjectRoute = require('./routes/subject.route')
 const dashboardRoute = require('./routes/dashboard.route')
+const cbtRoute = require('./routes/cbt.route')
 require('dotenv').config()
 
 const app = express()
@@ -22,6 +23,7 @@ app.use('/students', studentRoute)
 app.use('/staff', staffRoute)
 app.use('/subjects', subjectRoute)
 app.use('/dashboard', dashboardRoute)
+app.use('/cbt', cbtRoute)
 
 let URI = process.env.MONGODB_URI
 mongoose.connect(URI)
