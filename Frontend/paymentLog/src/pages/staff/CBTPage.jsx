@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../utils/api';
 import { C, CLASSES, SCHOOL_TYPES } from '../../utils/constants';
 
@@ -7,6 +7,8 @@ const iStyle = { width: '100%', padding: '9px 12px', border: `1.5px solid ${C.bo
 const lStyle = { color: C.text, fontSize: '12px', fontWeight: '600', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.05em' };
 
 const GRADE_COLOR = { A: '#15803D', B: '#2563EB', C: '#775a19', D: '#d97706', F: '#DC2626' };
+
+const LIMIT = 10; // exams per page
 
 const emptyExam = { title: '', subject: '', schoolType: 'Secondary', class: '', duration: 30, instructions: '', passMark: 50 };
 const emptyQ = { text: '', options: ['', '', '', ''], answer: 0, mark: 1 };
@@ -116,6 +118,9 @@ export default function CBTPage() {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pages = Math.ceil(total / LIMIT);
 
   // Modals: 'create' | 'edit' | 'questions' | 'results' | 'delete' | null
   const [modal, setModal] = useState(null);
@@ -134,12 +139,31 @@ export default function CBTPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const fetchExams = () => {
+  const fetchExams = useCallback(() => {
     setLoading(true);
-    api.get('/cbt/exams').then(({ data }) => setExams(data.data || [])).catch(console.error).finally(() => setLoading(false));
-  };
+    api.get('/cbt/exams', { params: { page, limit: LIMIT } })
+      .then(({ data }) => {
+        const rows = data.data || [];
+        if (typeof data.total === 'number') {
+          setExams(rows);            // backend paged for us
+          setTotal(data.total);
+        } else {
+          // Older deployed backend ignores page/limit and returns every exam —
+          // slice locally so paging still works until it is redeployed.
+          setExams(rows.slice((page - 1) * LIMIT, page * LIMIT));
+          setTotal(rows.length);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [page]);
 
-  useEffect(() => { fetchExams(); }, []);
+  useEffect(() => { fetchExams(); }, [fetchExams]);
+
+  // Deleting the last exam on the final page would leave it empty — step back.
+  useEffect(() => {
+    if (page > 1 && total > 0 && page > Math.ceil(total / LIMIT)) setPage(p => p - 1);
+  }, [total, page]);
 
   const availableClasses = form.schoolType ? CLASSES[form.schoolType] || [] : [];
 
@@ -172,8 +196,11 @@ export default function CBTPage() {
         await api.put(`/cbt/exams/${activeExam._id}`, form);
         showToast('Exam updated.');
       }
+      const wasCreate = modal === 'create';
       setModal(null);
-      fetchExams();
+      // Exams sort newest-first, so a newly created one lands on page 1.
+      if (wasCreate && page !== 1) setPage(1);
+      else fetchExams();
     } catch (e) { showToast(e.response?.data?.message || 'Error saving exam.', 'error'); }
     finally { setSaving(false); }
   };
@@ -265,6 +292,20 @@ export default function CBTPage() {
               </div>
             </div>
           ))}
+
+          {/* Pagination */}
+          {pages > 1 && (
+            <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <span style={{ color: C.muted, fontSize: '13px' }}>Showing {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, total)} of {total}</span>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <button disabled={page === 1} onClick={() => setPage(p => p - 1)} style={{ padding: '6px 14px', borderRadius: '6px', border: `1.5px solid ${C.border}`, background: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer', color: page === 1 ? C.muted : C.text, fontSize: '13px', fontFamily: ff }}>← Prev</button>
+                {Array.from({ length: Math.min(pages, 5) }, (_, i) => i + 1).map(p => (
+                  <button key={p} onClick={() => setPage(p)} style={{ padding: '6px 12px', borderRadius: '6px', border: `1.5px solid ${p === page ? C.primary : C.border}`, background: p === page ? C.primary : '#fff', color: p === page ? '#fff' : C.text, cursor: 'pointer', fontWeight: p === page ? '700' : '400', fontSize: '13px', fontFamily: ff }}>{p}</button>
+                ))}
+                <button disabled={page === pages} onClick={() => setPage(p => p + 1)} style={{ padding: '6px 14px', borderRadius: '6px', border: `1.5px solid ${C.border}`, background: '#fff', cursor: page === pages ? 'not-allowed' : 'pointer', color: page === pages ? C.muted : C.text, fontSize: '13px', fontFamily: ff }}>Next →</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

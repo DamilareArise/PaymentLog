@@ -6,8 +6,16 @@ const Student = require('../models/student.model');
 
 const listExams = async (req, res) => {
   try {
-    const exams = await Exam.find().sort({ createdAt: -1 }).select('-questions');
-    res.json({ status: 'success', data: exams });
+    const { page = 1, limit = 10 } = req.query;
+
+    const total = await Exam.countDocuments();
+    const exams = await Exam.find()
+      .sort({ createdAt: -1 })
+      .select('-questions')
+      .skip((Number(page) - 1) * Number(limit))
+      .limit(Number(limit));
+
+    res.json({ status: 'success', data: exams, total, page: Number(page), limit: Number(limit) });
   } catch (err) {
     res.status(500).json({ status: 'error', message: err.message });
   }
