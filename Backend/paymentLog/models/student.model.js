@@ -7,7 +7,7 @@ const studentSchema = new mongoose.Schema({
   gender: { type: String, enum: ['Male', 'Female'] },
   dateOfBirth: Date,
   class: String,
-  schoolType: { type: String, enum: ['Nursery', 'Primary', 'Secondary'] },
+  schoolType: { type: String, enum: ['KG', 'Nursery', 'Primary', 'Secondary'] },
   section: String,
   address: String,
   parentName: String,

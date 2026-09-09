@@ -25,7 +25,7 @@ const SCHEMA = Yup.object({
 });
 const INIT = { name: '', code: '', schoolType: '', classes: [] };
 
-const LEVEL_COLORS = { Nursery: '#9B6B47', Primary: C.primary, Secondary: C.dark };
+const LEVEL_COLORS = { KG: C.secondary, Nursery: '#9B6B47', Primary: C.primary, Secondary: C.dark };
 
 export default function SubjectsPage() {
   const [subjects, setSubjects] = useState([]);

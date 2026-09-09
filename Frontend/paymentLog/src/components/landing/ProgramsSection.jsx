@@ -12,16 +12,16 @@ export default function ProgramsSection() {
         {/* Bento Grid */}
         <div className="grid md:grid-cols-12 gap-gutter" style={{ minHeight: '600px' }}>
 
-          {/* Nursery — 4 cols */}
-          <div className="md:col-span-4 bg-surface-container p-8 border border-outline-variant/30 flex flex-col justify-between hover:border-primary/40 transition-colors duration-300 group">
+          {/* Kindergarten — 6 cols */}
+          <div className="md:col-span-6 bg-surface-container p-8 border border-outline-variant/30 flex flex-col justify-between hover:border-primary/40 transition-colors duration-300 group">
             <div className="space-y-4">
-              <span className="material-symbols-outlined text-primary text-5xl">child_care</span>
-              <h3 className="font-serif text-2xl font-semibold text-on-surface">Nursery School</h3>
+              <span className="material-symbols-outlined text-primary text-5xl">crib</span>
+              <h3 className="font-serif text-2xl font-semibold text-on-surface">Kindergarten</h3>
               <p className="text-on-surface-variant font-serif text-base leading-relaxed">
-                Early childhood development focused on curiosity, motor skills, and foundational literacy in a warm, nurturing environment.
+                Our earliest years, where play leads the learning — sensory discovery, language, and social confidence built at each child&apos;s own pace.
               </p>
               <div className="pt-2">
-                {['Creche', 'Nursery 1', 'Nursery 2', 'Nursery 3'].map(c => (
+                {['Creche', 'Pre-KG', 'KG 1', 'KG 2'].map(c => (
                   <span key={c} className="inline-block mr-2 mb-2 text-xs font-sans tracking-wide text-on-surface-variant border border-outline-variant/40 px-2 py-1">{c}</span>
                 ))}
               </div>
@@ -34,8 +34,30 @@ export default function ProgramsSection() {
             </a>
           </div>
 
-          {/* Primary — 8 cols with image */}
-          <div className="md:col-span-8 relative group overflow-hidden" style={{ minHeight: '360px' }}>
+          {/* Nursery — 6 cols */}
+          <div className="md:col-span-6 bg-surface-container p-8 border border-outline-variant/30 flex flex-col justify-between hover:border-primary/40 transition-colors duration-300 group">
+            <div className="space-y-4">
+              <span className="material-symbols-outlined text-primary text-5xl">child_care</span>
+              <h3 className="font-serif text-2xl font-semibold text-on-surface">Nursery School</h3>
+              <p className="text-on-surface-variant font-serif text-base leading-relaxed">
+                Early childhood development focused on curiosity, motor skills, and foundational literacy in a warm, nurturing environment.
+              </p>
+              <div className="pt-2">
+                {['Nursery 1', 'Nursery 2', 'Nursery 3'].map(c => (
+                  <span key={c} className="inline-block mr-2 mb-2 text-xs font-sans tracking-wide text-on-surface-variant border border-outline-variant/40 px-2 py-1">{c}</span>
+                ))}
+              </div>
+            </div>
+            <a href="#admissions" onClick={e => { e.preventDefault(); document.getElementById('admissions')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="font-sans font-semibold text-sm tracking-widest text-primary flex items-center gap-2 no-underline group mt-8 uppercase"
+            >
+              Enrol Now
+              <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </a>
+          </div>
+
+          {/* Primary — full width with image */}
+          <div className="md:col-span-12 relative group overflow-hidden" style={{ minHeight: '360px' }}>
             <img
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD2a84L7gCaWGs9zM1P49OtUSCsBohpv_4ghq4MzPg0qZTrfqDEcl3KyIflkiO3uDfAejpVkq9CNGt9qe5-8pS_N0zHH5T_VFpXjNLr8MV2Pw_DFZlwAmLCOxEyRMD-ZwonmTR3ZlbitEApEGWBFEHm5rpDX4LCiuowoGYXFgnIQD1qN7w9ouj6HEpI0f1R6nnW_SYe-XY2t8tnAW-pb_IznoiS3nnQ6xb4eWPYlVLr6Sw9eRrFgb-qdTTbaGHUfLPf4d9lrvbN-A"

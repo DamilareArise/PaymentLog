@@ -27,14 +27,15 @@ export const C = {
 };
 
 export const CLASSES = {
-  Nursery: ['Creche', 'Nursery 1', 'Nursery 2', 'Nursery 3'],
+  KG: ['Creche', 'Pre-KG', 'KG 1', 'KG 2'],
+  Nursery: ['Nursery 1', 'Nursery 2', 'Nursery 3'],
   Primary: ['Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6'],
   Secondary: ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'],
 };
 
-export const ALL_CLASSES = [...CLASSES.Nursery, ...CLASSES.Primary, ...CLASSES.Secondary];
+export const ALL_CLASSES = [...CLASSES.KG, ...CLASSES.Nursery, ...CLASSES.Primary, ...CLASSES.Secondary];
 
-export const SCHOOL_TYPES = ['Nursery', 'Primary', 'Secondary'];
+export const SCHOOL_TYPES = ['KG', 'Nursery', 'Primary', 'Secondary'];
 
 export const STATUS_COLORS = {
   admitted: { bg: 'rgba(22,163,74,0.1)', color: '#15803D', label: 'Admitted' },

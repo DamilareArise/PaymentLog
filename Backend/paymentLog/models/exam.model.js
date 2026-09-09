@@ -11,7 +11,7 @@ const examSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   subject: { type: String, required: true },
   class: { type: String, required: true },
-  schoolType: { type: String, enum: ['Nursery', 'Primary', 'Secondary'], required: true },
+  schoolType: { type: String, enum: ['KG', 'Nursery', 'Primary', 'Secondary'], required: true },
   duration: { type: Number, required: true }, // minutes
   instructions: { type: String, default: '' },
   questions: [questionSchema],
