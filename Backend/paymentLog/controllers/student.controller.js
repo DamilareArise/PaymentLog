@@ -1,9 +1,18 @@
 const Student = require('../models/student.model');
 
+// Admission numbers look like OOS/<year>/<sequence>. The next one is derived
+// from the highest sequence already issued this year, not from a document
+// count: counting breaks whenever the sequence does not start at 1 or a
+// student has been deleted, and then every new number collides with an
+// existing one. Parsed as an int so 1000 sorts after 999.
 const generateAdmissionNumber = async () => {
   const year = new Date().getFullYear();
-  const count = await Student.countDocuments({ admissionNumber: { $regex: `OOS/${year}/` } });
-  return `OOS/${year}/${String(count + 1).padStart(3, '0')}`;
+  const [{ max } = {}] = await Student.aggregate([
+    { $match: { admissionNumber: { $regex: `^OOS/${year}/` } } },
+    { $project: { seq: { $convert: { input: { $arrayElemAt: [{ $split: ['$admissionNumber', '/'] }, 2] }, to: 'int', onError: 0, onNull: 0 } } } },
+    { $group: { _id: null, max: { $max: '$seq' } } },
+  ]);
+  return `OOS/${year}/${String((max || 0) + 1).padStart(3, '0')}`;
 };
 
 const getAllStudents = async (req, res) => {
@@ -39,13 +48,22 @@ const getStudent = async (req, res) => {
 };
 
 const createStudent = async (req, res) => {
-  try {
-    const admissionNumber = await generateAdmissionNumber();
-    const student = new Student({ ...req.body, admissionNumber });
-    await student.save();
-    res.status(201).json({ status: 'success', data: student });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
+  // Two simultaneous creates can read the same highest sequence; the unique
+  // index rejects the loser, so recompute and retry rather than failing.
+  const ATTEMPTS = 5;
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      const admissionNumber = await generateAdmissionNumber();
+      const student = new Student({ ...req.body, admissionNumber });
+      await student.save();
+      return res.status(201).json({ status: 'success', data: student });
+    } catch (err) {
+      const isDuplicateAdmissionNumber = err.code === 11000 && 'admissionNumber' in (err.keyPattern || {});
+      if (isDuplicateAdmissionNumber && attempt < ATTEMPTS) continue;
+      return res
+        .status(err.code === 11000 ? 409 : 500)
+        .json({ status: 'error', message: err.message });
+    }
   }
 };
 
